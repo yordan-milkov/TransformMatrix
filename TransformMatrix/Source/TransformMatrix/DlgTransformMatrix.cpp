@@ -636,25 +636,31 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetMatrixForDDX( const SDDXData & d
 			if	(	data.fObjectIndex > 0
 				&&	( object = VWObject::InternalIndex2Handle( data.fObjectIndex ) ) != nullptr )
 			{
-				result.fMatrix	= object.GetObjectModelMatrix();
-				if ( useSlider && DoublesAreNotNearlyEqual( this->SliderPercent(), 1 ) )
-				{
-					VWPoint3D angles	= result.GetOulerAngles( 2 );
-					angles	*= this->SliderPercent();
-					result.SetOulerAnglesRotation( angles, 2 );
+				TransformMatrixAdvanced	objectMat;
+				objectMat.fMatrix	= object.GetObjectModelMatrix();
 
-					VWPoint3D offset	= result.GetOffset();
-					offset	*= this->SliderPercent();
-					result.SetOffset( offset );
-				}
-
-				if ( !data.fObjectRotation )
+				if ( data.fObjectRotation )
 				{
-					result.SetRotation( 0, VWPoint3D( 0, 0, 1 ) );
-				}
-				if ( !data.fObjectTrans )
-				{
+					if ( useSlider && DoublesAreNotNearlyEqual( this->SliderPercent(), 1 ) )
+					{
+						VWPoint3D angles	= objectMat.GetOulerAngles( 0 );
+						angles	*= this->SliderPercent();
+						result.SetOulerAnglesRotation( angles, 0 );
+					}
+					else
+					{
+						result	= objectMat;
+					}
 					result.SetOffset( 0, 0, 0 );
+				}
+				if ( data.fObjectTrans )
+				{
+					VWPoint3D offset	= objectMat.GetOffset();
+					if ( useSlider && DoublesAreNotNearlyEqual( this->SliderPercent(), 1 ) )
+					{
+						offset	*= this->SliderPercent();
+					}
+					result.SetOffset( offset );
 				}
 			}
 			break;
