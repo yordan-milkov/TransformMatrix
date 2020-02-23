@@ -67,27 +67,27 @@ enum ETransformMatrixDlg {
 	kYOulerStatic            = 59,
 	kZOulerStatic            = 60,
 	kMatrixView              = 61,
-	kFormulaView             = 62,
-	kMatrix0RC               = 63,
-	kMatrixXCol              = 64,
-	kMatrixYCol              = 65,
-	kMatrixZCol              = 66,
-	kMatrixXRow              = 67,
-	kMatrixXX                = 68,
-	kMatrixXY                = 69,
-	kMatrixXZ                = 70,
-	kMatrixYRow              = 71,
-	kMatrixYX                = 72,
-	kMatrixYY                = 73,
-	kMatrixYZ                = 74,
-	kMatrixZRow              = 75,
-	kMatrixZX                = 76,
-	kMatrixZY                = 77,
-	kMatrixZZ                = 78,
-	kMatrixORow              = 79,
-	kMatrixOX                = 80,
-	kMatrixOY                = 81,
-	kMatrixOZ                = 82,
+	kMatrix0RC               = 62,
+	kMatrixXCol              = 63,
+	kMatrixYCol              = 64,
+	kMatrixZCol              = 65,
+	kMatrixURow              = 66,
+	kMatrixUX                = 67,
+	kMatrixUY                = 68,
+	kMatrixUZ                = 69,
+	kMatrixVRow              = 70,
+	kMatrixVX                = 71,
+	kMatrixVY                = 72,
+	kMatrixVZ                = 73,
+	kMatrixWRow              = 74,
+	kMatrixWX                = 75,
+	kMatrixWY                = 76,
+	kMatrixWZ                = 77,
+	kMatrixORow              = 78,
+	kMatrixOX                = 79,
+	kMatrixOY                = 80,
+	kMatrixOZ                = 81,
+	kFormulaView             = 82,
 	kPreviewGrp              = 83,
 	kPreview                 = 84,
 	kSlider                  = 85,
@@ -497,25 +497,28 @@ void CDlgTransformMatrix::RebuildDDX()
 
 	SDDXData& currentData	= this->GetCurrentDDX();
 
-	this->AddDDX_PulldownMenu(kTypePopup			, &currentData.fTransformType );
-	this->AddDDX_CheckButton( kInvertCheck			, &currentData.fInvert );
-	this->AddDDX_RadioButton( kXRotRadio			, &currentData.fXRotRadio );
-	this->AddDDX_RadioButton( kYRotRadio			, &currentData.fYRotRadio );
-	this->AddDDX_RadioButton( kZRotRadio			, &currentData.fZRotRadio );
-	this->AddDDX_RadioButton( kAsixRotRadio			, &currentData.fAsixRotRadio );
-	this->AddDDX_EditReal	( kXRotEdit				, &currentData.fAsixRotEdit.x, VWEditRealCtrl::kEditControlReal );
-	this->AddDDX_EditReal	( kYRotEdit				, &currentData.fAsixRotEdit.y, VWEditRealCtrl::kEditControlReal );
-	this->AddDDX_EditReal	( kZRotEdit				, &currentData.fAsixRotEdit.z, VWEditRealCtrl::kEditControlReal );
-	this->AddDDX_EditReal	( kRotAngleEdit			, &currentData.fRotAngleEdit, VWEditRealCtrl::kEditControlAngle );
-	this->AddDDX_EditReal	( kXTranslateEdit		, &currentData.fXTranslateEdit, VWEditRealCtrl::kEditControlDimension );
-	this->AddDDX_EditReal	( kYTranslateEdit		, &currentData.fYTranslateEdit, VWEditRealCtrl::kEditControlDimension );
-	this->AddDDX_EditReal	( kZTranslateEdit		, &currentData.fZTranslateEdit, VWEditRealCtrl::kEditControlDimension );
-	this->AddDDX_EditReal	( kXScaleEdit			, &currentData.fXScaleEdit, VWEditRealCtrl::kEditControlReal );
-	this->AddDDX_EditReal	( kYScaleEdit			, &currentData.fYScaleEdit, VWEditRealCtrl::kEditControlReal );
-	this->AddDDX_EditReal	( kZScaleEdit			, &currentData.fZScaleEdit, VWEditRealCtrl::kEditControlReal );
-	this->AddDDX_CheckButton( kSymetricScale		, &currentData.fSymetricScale );
-	this->AddDDX_CheckButton( kObjectRotationCheck	, &currentData.fObjectRotation );
-	this->AddDDX_CheckButton( kObjectTranslationCheck,&currentData.fObjectTrans );
+	if ( ETransformType( currentData.fTransformType ) != ETransformType::Result )
+	{
+		this->AddDDX_PulldownMenu(kTypePopup			, &currentData.fTransformType );
+		this->AddDDX_CheckButton( kInvertCheck			, &currentData.fInvert );
+		this->AddDDX_RadioButton( kXRotRadio			, &currentData.fXRotRadio );
+		this->AddDDX_RadioButton( kYRotRadio			, &currentData.fYRotRadio );
+		this->AddDDX_RadioButton( kZRotRadio			, &currentData.fZRotRadio );
+		this->AddDDX_RadioButton( kAsixRotRadio			, &currentData.fAsixRotRadio );
+		this->AddDDX_EditReal	( kXRotEdit				, &currentData.fAsixRotEdit.x, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_EditReal	( kYRotEdit				, &currentData.fAsixRotEdit.y, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_EditReal	( kZRotEdit				, &currentData.fAsixRotEdit.z, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_EditReal	( kRotAngleEdit			, &currentData.fRotAngleEdit, VWEditRealCtrl::kEditControlAngle );
+		this->AddDDX_EditReal	( kXTranslateEdit		, &currentData.fXTranslateEdit, VWEditRealCtrl::kEditControlDimension );
+		this->AddDDX_EditReal	( kYTranslateEdit		, &currentData.fYTranslateEdit, VWEditRealCtrl::kEditControlDimension );
+		this->AddDDX_EditReal	( kZTranslateEdit		, &currentData.fZTranslateEdit, VWEditRealCtrl::kEditControlDimension );
+		this->AddDDX_EditReal	( kXScaleEdit			, &currentData.fXScaleEdit, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_EditReal	( kYScaleEdit			, &currentData.fYScaleEdit, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_EditReal	( kZScaleEdit			, &currentData.fZScaleEdit, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_CheckButton( kSymetricScale		, &currentData.fSymetricScale );
+		this->AddDDX_CheckButton( kObjectRotationCheck	, &currentData.fObjectRotation );
+		this->AddDDX_CheckButton( kObjectTranslationCheck,&currentData.fObjectTrans );
+	}
 
 	this->AddDDX_PulldownMenu( kOulerGroup	, &fOulerIndexPopup );
 	this->AddDDX_CheckButton ( kFormulaView	, &fFormulaView );
@@ -703,16 +706,112 @@ void CDlgTransformMatrix::CalculateResultPane()
 
 void CDlgTransformMatrix::UpdateMatrixView()
 {
+	auto SetEditItemText = [ & ] ( TControlID control, const TXString& label )
+	{
+		this->GetEditTextCtrlByID( control )->SetControlText( label );
+	};
 	auto SetEditItem = [ & ] ( TControlID control, double value )
 	{
 		TXString	label;
 		gSDK->DoubleToString( nsGeneral, 2, 0, value, label );
-		this->GetEditTextCtrlByID( control )->SetControlText( label );
+		SetEditItemText( control, label );
 	};
 
-	if ( fFormulaView && fSelectedIndex != (size_t) -1 )
+	const SDDXData&	currentDDX	= this->GetCurrentDDX();
+	bool	enableFormulaView
+		= !setmember( ETransformType( currentDDX.fTransformType ), ETransformType::Result, ETransformType::ObjectMat );
+	this->EnableControl( kFormulaView, enableFormulaView );
+
+	if ( fFormulaView && enableFormulaView )
 	{
-		;
+		SetEditItem( kMatrixUX, 1 );
+		SetEditItem( kMatrixUY, 0 );
+		SetEditItem( kMatrixUZ, 0 );
+		SetEditItem( kMatrixVX, 0 );
+		SetEditItem( kMatrixVY, 1 );
+		SetEditItem( kMatrixVZ, 0 );
+		SetEditItem( kMatrixWX, 0 );
+		SetEditItem( kMatrixWY, 0 );
+		SetEditItem( kMatrixWZ, 1 );
+		SetEditItem( kMatrixOX, 0 );
+		SetEditItem( kMatrixOY, 0 );
+		SetEditItem( kMatrixOZ, 0 );
+		
+		switch ( ETransformType( currentDDX.fTransformType ) )
+		{
+			case ETransformType::Rotation:
+			{
+				TXString	sin		( TXResStr( "TransformMatrixDlg", "formulaSin" ) );
+				TXString	cos		( TXResStr( "TransformMatrixDlg", "formulaCos" ) );
+
+				if ( currentDDX.fAsixRotRadio )
+				{
+					auto formatAsixRot = [ & ] ( const TXString& label ) -> TXString
+					{
+						TXString result	= label;
+						result.Replace( "^1", TXResStr( "TransformMatrixDlg", "kXRotRadio" ) );
+						result.Replace( "^2", TXResStr( "TransformMatrixDlg", "kYRotRadio" ) );
+						result.Replace( "^3", TXResStr( "TransformMatrixDlg", "kZRotRadio" ) );
+						result.Replace( "^4", sin );
+						result.Replace( "^5", cos );
+						return result;
+					};
+
+					SetEditItemText( kMatrixUX, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotUX" ) ) );
+					SetEditItemText( kMatrixUY, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotUY" ) ) );
+					SetEditItemText( kMatrixUZ, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotUZ" ) ) );
+					SetEditItemText( kMatrixVX, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotVX" ) ) );
+					SetEditItemText( kMatrixVY, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotVY" ) ) );
+					SetEditItemText( kMatrixVZ, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotVZ" ) ) );
+					SetEditItemText( kMatrixWX, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotWX" ) ) );
+					SetEditItemText( kMatrixWY, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotWY" ) ) );
+					SetEditItemText( kMatrixWZ, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotWZ" ) ) );
+				}
+				else
+				{
+
+					if ( currentDDX.fXRotRadio )
+					{
+						SetEditItemText( kMatrixVY, cos );
+						SetEditItemText( kMatrixVZ, "-" + sin );
+						SetEditItemText( kMatrixWY, sin );
+						SetEditItemText( kMatrixWZ, cos );
+					}
+					else if ( currentDDX.fYRotRadio )
+					{
+						SetEditItemText( kMatrixUX, cos );
+						SetEditItemText( kMatrixUZ, sin );
+						SetEditItemText( kMatrixWX, "-" + sin );
+						SetEditItemText( kMatrixWZ, cos );
+
+					}
+					else if ( currentDDX.fZRotRadio )
+					{
+						SetEditItemText( kMatrixUX, cos );
+						SetEditItemText( kMatrixUY, "-" + sin );
+						SetEditItemText( kMatrixVX, sin );
+						SetEditItemText( kMatrixVY, cos );
+					}
+				}
+				break;
+			}
+			case ETransformType::Translation:
+			{
+				SetEditItemText( kMatrixOX, TXResStr( "TransformMatrixDlg", "kXRotRadio" ) );
+				SetEditItemText( kMatrixOY, TXResStr( "TransformMatrixDlg", "kYRotRadio" ) );
+				SetEditItemText( kMatrixOZ, TXResStr( "TransformMatrixDlg", "kZRotRadio" ) );
+				break;
+			}
+			case ETransformType::Scaling:
+			{
+				SetEditItemText( kMatrixUX, TXResStr( "TransformMatrixDlg", "kXRotRadio" ) + "*1" );
+				SetEditItemText( kMatrixVY, TXResStr( "TransformMatrixDlg", "kYRotRadio" ) + "*1" );
+				SetEditItemText( kMatrixWZ, TXResStr( "TransformMatrixDlg", "kZRotRadio" ) + "*1" );
+				break;
+			}
+			default:
+				break;
+		}
 	}
 	else
 	{
@@ -727,15 +826,15 @@ void CDlgTransformMatrix::UpdateMatrixView()
 		}
 
 		auto&	matrixData	= matrix.fMatrix.mat;
-		SetEditItem( kMatrixXX, matrixData[ 0 ][ 0 ] );
-		SetEditItem( kMatrixXY, matrixData[ 0 ][ 1 ] );
-		SetEditItem( kMatrixXZ, matrixData[ 0 ][ 2 ] );
-		SetEditItem( kMatrixYX, matrixData[ 1 ][ 0 ] );
-		SetEditItem( kMatrixYY, matrixData[ 1 ][ 1 ] );
-		SetEditItem( kMatrixYZ, matrixData[ 1 ][ 2 ] );
-		SetEditItem( kMatrixZX, matrixData[ 2 ][ 0 ] );
-		SetEditItem( kMatrixZY, matrixData[ 2 ][ 1 ] );
-		SetEditItem( kMatrixZZ, matrixData[ 2 ][ 2 ] );
+		SetEditItem( kMatrixUX, matrixData[ 0 ][ 0 ] );
+		SetEditItem( kMatrixUY, matrixData[ 0 ][ 1 ] );
+		SetEditItem( kMatrixUZ, matrixData[ 0 ][ 2 ] );
+		SetEditItem( kMatrixVX, matrixData[ 1 ][ 0 ] );
+		SetEditItem( kMatrixVY, matrixData[ 1 ][ 1 ] );
+		SetEditItem( kMatrixVZ, matrixData[ 1 ][ 2 ] );
+		SetEditItem( kMatrixWX, matrixData[ 2 ][ 0 ] );
+		SetEditItem( kMatrixWY, matrixData[ 2 ][ 1 ] );
+		SetEditItem( kMatrixWZ, matrixData[ 2 ][ 2 ] );
 		SetEditItem( kMatrixOX, matrixData[ 3 ][ 0 ] );
 		SetEditItem( kMatrixOY, matrixData[ 3 ][ 1 ] );
 		SetEditItem( kMatrixOZ, matrixData[ 3 ][ 2 ] );
