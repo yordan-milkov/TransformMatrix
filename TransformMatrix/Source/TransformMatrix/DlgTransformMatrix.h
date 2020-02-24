@@ -22,6 +22,8 @@ namespace CreateTransformMatrix
 		virtual void			OnInitializeContent();
 		virtual void			OnDDXInitialize();
 		virtual void			OnUpdateUI();
+
+		virtual void			OnSetDownEvent();
 			
 
 		// dispatch map
@@ -39,6 +41,7 @@ namespace CreateTransformMatrix
 		void					OnSymetricCheck( Sint32 controlID, VWDialogEventArgs& eventArgs );
 		void					OnPickObjectButton( Sint32 controlID, VWDialogEventArgs& eventArgs );
 		void					OnResultPaneChage( Sint32 controlID, VWDialogEventArgs& eventArgs );
+		void					OnOriginPullDown( Sint32 controlID, VWDialogEventArgs& eventArgs );
 
 		// DDX
 	protected:
@@ -101,6 +104,10 @@ namespace CreateTransformMatrix
 		SDDXData	fResultDDX;
 		size_t		fOulerIndexPopup;
 		bool		fFormulaView;
+		Sint32		fViewMarker;
+		Sint32		fRenderMarker;
+		bool		fDetailedPreview;
+		short		fOriginIndex;
 		Sint32		fSliderValue;
 
 		// local functions
@@ -115,11 +122,14 @@ namespace CreateTransformMatrix
 		void					UpdatePreview();
 		double					SliderPercent();
 		TXString				GetNewName( const TXString& oldName );
+		void					ClearPreviewGeometry();
 
 		// Inner data
 	private:
 		size_t					fSelectedIndex;
 		MCObjectHandle			fCacheObject;
+		MCObjectHandle			fBoundObject;
+		MCObjectHandle			fPreviewObject;
 		size_t					fLBBlankImageID;
 		size_t					fLBCheckMarkImageID;
 	};

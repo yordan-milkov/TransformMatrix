@@ -90,7 +90,14 @@ enum ETransformMatrixDlg {
 	kFormulaView             = 82,
 	kPreviewGrp              = 83,
 	kPreview                 = 84,
-	kSlider                  = 85,
+	kViewStatic              = 85,
+	kViewPopup               = 86,
+	kRenderStatic            = 87,
+	kRenderPopup             = 88,
+	kDetailedPreviewCheck    = 89,
+	kOriginStatic            = 90,
+	kOriginPopup             = 91,
+	kSlider                  = 92,
 
 	// custom strings IDs
 };
@@ -122,12 +129,21 @@ ADD_DISPATCH_EVENT( kSymetricScale	, OnSymetricCheck );
 ADD_DISPATCH_EVENT( kPickObjectButton,OnPickObjectButton );
 
 ADD_DISPATCH_EVENT( kOulerGroup		, OnResultPaneChage );
+ADD_DISPATCH_EVENT( kOriginPopup	, OnOriginPullDown );
 EVENT_DISPATCH_MAP_END;
 
 CDlgTransformMatrix::CDlgTransformMatrix()
-	: fSliderValue( 100 )
-	, fResultDDX()
-	, fSelectedIndex((size_t) -1)
+	: fResultDDX()
+	, fSelectedIndex( (size_t) -1 )
+	, fFormulaView( false )
+	, fViewMarker( standardViewLeftIso )
+	, fRenderMarker( renderOpenGL )
+	, fDetailedPreview( false )
+	, fOriginIndex( 0 )
+	, fSliderValue( 100 )
+	, fCacheObject( nullptr )
+	, fBoundObject( nullptr )
+	, fPreviewObject( nullptr )
 {
 	// Assign settings tag to this dialog so it would save it's position and size automatically
 	this->SetSavedSettingsTag( "TransformMatrix", "TransformMatrixDlg" );
@@ -135,12 +151,70 @@ CDlgTransformMatrix::CDlgTransformMatrix()
 
 CDlgTransformMatrix::~CDlgTransformMatrix()
 {
-	gSDK->DeleteObjectNoNotify( fCacheObject );
 }
 
 TransformMatrixAdvanced CDlgTransformMatrix::GetTransform( bool useSlider )
 {
 	TransformMatrixAdvanced	result;
+	
+	WorldPt3	offset;
+	if ( fOriginIndex )
+	{
+		WorldCube	boundCube;
+		gSDK->GetObjectCube( fCacheObject, boundCube );
+		switch ( fOriginIndex )
+		{
+			case 1:
+			{
+				offset	= boundCube.PointXYZ();
+				break;
+			}
+			case 2:
+			{
+				offset	= boundCube.PointXYz();
+				break;
+			}
+			case 3:
+			{
+				offset	= boundCube.PointXyZ();
+				break;
+			}
+			case 4:
+			{
+				offset	= boundCube.PointXyz();
+				break;
+			}
+			case 5:
+			{
+				offset	= boundCube.PointxYZ();
+				break;
+			}
+			case 6:
+			{
+				offset	= boundCube.PointxYz();
+				break;
+			}
+			case 7:
+			{
+				offset	= boundCube.PointxyZ();
+				break;
+			}
+			case 8:
+			{
+				offset	= boundCube.Pointxyz();
+				break;
+			}
+			case 9:
+			{
+				offset	= boundCube.Center();
+				break;
+			}
+			default:
+				break;
+		}
+		result.SetMatrix( -offset );
+	}
+	
 	for ( const SDDXData& item : fDDXControls )
 	{
 		if ( item.fUse )
@@ -148,6 +222,13 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetTransform( bool useSlider )
 			result	*= this->GetMatrixForDDX( item, useSlider );
 		}
 	}
+
+	if ( fOriginIndex )
+	{
+		VWTransformMatrix	invert( offset );
+		result	*= invert;
+	}
+
 	return result;
 }
 
@@ -157,6 +238,39 @@ void CDlgTransformMatrix::TransformObjects( MCObjectHandle targetContainer /*= n
 	if ( targetContainer )
 	{
 		//VWMeshObj	mesh( gSDK->DuplicateObject( fMeshObject ) );
+
+		if ( fDetailedPreview )
+		{
+			VWObject	obj( gSDK->DuplicateObject( fCacheObject ) );
+			gSDK->AddObjectToContainer( obj, targetContainer ? targetContainer : gSDK->GetActiveLayer() );
+		}
+		else
+		{
+			if ( !fPreviewObject && fCacheObject )
+			{
+				gSDK->ResetObject( fCacheObject );
+
+				WorldCube	boundCube;
+				gSDK->GetObjectCube( fCacheObject, boundCube );
+
+				VWGroupObj	lociGroup;
+				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointXYZ() ) );
+				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointXYz() ) );
+				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointXyZ() ) );
+				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointXyz() ) );
+				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointxYZ() ) );
+				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointxYz() ) );
+				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointxyZ() ) );
+				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.Pointxyz() ) );
+				lociGroup.ResetObject();
+
+				fPreviewObject	= lociGroup;
+			}
+			if ( fPreviewObject )
+			{
+				gSDK->AddObjectToContainer( gSDK->DuplicateObject( fPreviewObject ), targetContainer ? targetContainer : gSDK->GetActiveLayer() );
+			}
+		}
 
 		VWObject	obj( gSDK->DuplicateObject( fCacheObject ) );
 		gSDK->AddObjectToContainer( obj, targetContainer ? targetContainer : gSDK->GetActiveLayer() );
@@ -235,6 +349,23 @@ void CDlgTransformMatrix::OnInitializeContent()
 	pOulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Notation2" ) );
 	pOulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Notation3" ) );
 
+	VWPullDownMenuCtrl* pViewPopup	= this->GetPullDownMenuCtrlByID( kViewPopup );
+	for ( Sint32 currViewMarker = standardViewFront; currViewMarker <= standardViewBottomLeftRearIso; currViewMarker++ )
+	{
+		pViewPopup->AddItem( TXResStr( "TransformMatrixDlg", TXString( "View" ) << currViewMarker ), append, currViewMarker );
+	}
+
+	VWPullDownMenuCtrl* pRenderPopup	= this->GetPullDownMenuCtrlByID( kRenderPopup );
+	pRenderPopup->AddItem( TXResStr( "TransformMatrixDlg", "RenderOGL" )	, append, renderOpenGL );
+	pRenderPopup->AddItem( TXResStr( "TransformMatrixDlg", "RenderWire" )	, append, renderWireFrame );
+	pRenderPopup->AddItem( TXResStr( "TransformMatrixDlg", "RenderHidden" )	, append, renderFinalHiddenLine );
+
+	VWPullDownMenuCtrl* pOriginPopup	= this->GetPullDownMenuCtrlByID( kOriginPopup );
+	for ( short currOrigin = 0; currOrigin <= 9; currOrigin++ )
+	{
+		pOriginPopup->AddItem( TXResStr( "TransformMatrixDlg", TXString( "Bound" ) << currOrigin ) );
+	}
+
 	this->GetSliderCtrlByID( kSlider )->SetSliderLiveUpdate( true );
 
 	VWGroupObj	selGroup;
@@ -294,6 +425,12 @@ void CDlgTransformMatrix::OnUpdateUI()
 	this->UpdatePreview();
 
 	VWDialog::OnUpdateUI();
+}
+
+void CDlgTransformMatrix::OnSetDownEvent()
+{
+	this->ClearPreviewGeometry();
+	VWDialog::OnSetDownEvent();
 }
 
 void CDlgTransformMatrix::OnListBrowser( Sint32 controlID, VWDialogEventArgs & eventArgs )
@@ -440,6 +577,12 @@ void CDlgTransformMatrix::OnResultPaneChage( Sint32 controlID, VWDialogEventArgs
 	this->CalculateResultPane();
 }
 
+void CDlgTransformMatrix::OnOriginPullDown( Sint32 controlID, VWDialogEventArgs & eventArgs )
+{
+	gSDK->DeleteObject( fBoundObject );
+	fBoundObject	= nullptr;
+}
+
 void CDlgTransformMatrix::OnAddButton(Sint32 controlID, VWDialogEventArgs& eventArgs)
 {
 	TXString	newName	= this->GetNewName( "" );
@@ -524,8 +667,12 @@ void CDlgTransformMatrix::RebuildDDX()
 	this->AddDDX_CheckButton ( kFormulaView	, &fFormulaView );
 
 	this->UpdatePanes();
-	
-	this->AddDDX_Slider( kSlider, &fSliderValue );
+
+	this->AddDDX_PulldownMenu(kViewPopup			, &fViewMarker );
+	this->AddDDX_PulldownMenu(kRenderPopup			, &fRenderMarker );
+	this->AddDDX_CheckButton( kDetailedPreviewCheck	, &fDetailedPreview );
+	this->AddDDX_PulldownMenu(kOriginPopup			, &fOriginIndex );
+	this->AddDDX_Slider		( kSlider				, &fSliderValue );
 }
 
 void CDlgTransformMatrix::RebuildListBrowser()
@@ -848,7 +995,7 @@ void CDlgTransformMatrix::UpdatePreview()
 	this->TransformObjects( previewDef, true );
 	previewDef.ResetObject();
 
-	SymbolImgInfo imgInfoIn(standardViewLeftIso, renderOpenGL, EImageViewComponent::NotSet, false/*scaleByZoom*/);
+	SymbolImgInfo imgInfoIn( (TStandardView) fViewMarker, (TRenderMode) fRenderMarker, EImageViewComponent::NotSet, false/*scaleByZoom*/ );
 	gSDK->UpdateSymbolDisplayControl( this->GetDialogID()
 		, kPreview
 		, previewDef.GetObjectName()
@@ -898,6 +1045,21 @@ TXString CDlgTransformMatrix::GetNewName( const TXString & oldName )
 	while ( newName.IsEmpty() );
 
 	return newName;
+}
+
+void CDlgTransformMatrix::ClearPreviewGeometry()
+{
+	auto clearObject	= [] ( MCObjectHandle& handle )
+	{
+		if ( handle )
+		{
+			gSDK->DeleteObjectNoNotify( handle );
+		}
+		handle	= nullptr;
+	};
+	clearObject( fCacheObject );
+	clearObject( fBoundObject );
+	clearObject( fPreviewObject );
 }
 
 
