@@ -6,6 +6,7 @@
 
 using namespace CreateTransformMatrix;
 // dialog control IDs
+// dialog control IDs
 enum ETransformMatrixDlg {
 	kOK                      = 1,
 	kCancel                  = 2,
@@ -20,52 +21,52 @@ enum ETransformMatrixDlg {
 	kNameStatic              = 12,
 	kTransformTypeGrp        = 13,
 	kTypePopup               = 14,
-	kInvertCheck             = 15,
-	kTransformSwap           = 16,
-	kRatationPane            = 17,
-	kRotationAsixGrp         = 18,
-	kXRotRadio               = 19,
-	kYRotRadio               = 20,
-	kZRotRadio               = 21,
-	kAsixRotRadio            = 22,
-	kAxisRotStatic           = 23,
-	kXRotStatic              = 24,
-	kXRotEdit                = 25,
-	kYRotStatic              = 26,
-	kYRotEdit                = 27,
-	kZRotStatic              = 28,
-	kZRotEdit                = 29,
-	kNormAsixBtn             = 30,
-	kRotAngleStatic          = 31,
-	kRotAngleEdit            = 32,
-	kTranslationPane         = 33,
-	kTranslationCoordsStatic = 34,
-	kXTranslateStatic        = 35,
-	kXTranslateEdit          = 36,
-	kYTranslateStatic        = 37,
-	kYTranslateEdit          = 38,
-	kZTranslateStatic        = 39,
-	kZTranslateEdit          = 40,
-	kScalePane               = 41,
-	kScaleFactorsStatic      = 42,
-	kXScaleStatic            = 43,
-	kXScaleEdit              = 44,
-	kYScaleStatic            = 45,
-	kYScaleEdit              = 46,
-	kZScaleStatic            = 47,
-	kZScaleEdit              = 48,
-	kSymetricScale           = 49,
-	kObjectPane              = 50,
-	kObjectNameStatic        = 51,
-	kPickObjectButton        = 52,
-	kObjectRotationCheck     = 53,
-	kObjectTranslationCheck  = 54,
-	kResultPane              = 55,
-	kAffine                  = 56,
-	kOulerGroup              = 57,
-	kXOulerStatic            = 58,
-	kYOulerStatic            = 59,
-	kZOulerStatic            = 60,
+	kTransformSwap           = 15,
+	kRatationPane            = 16,
+	kRotationAsixGrp         = 17,
+	kXRotRadio               = 18,
+	kYRotRadio               = 19,
+	kZRotRadio               = 20,
+	kAsixRotRadio            = 21,
+	kAxisRotStatic           = 22,
+	kXRotStatic              = 23,
+	kXRotEdit                = 24,
+	kYRotStatic              = 25,
+	kYRotEdit                = 26,
+	kZRotStatic              = 27,
+	kZRotEdit                = 28,
+	kNormAsixBtn             = 29,
+	kRotAngleStatic          = 30,
+	kRotAngleEdit            = 31,
+	kTranslationPane         = 32,
+	kTranslationCoordsStatic = 33,
+	kXTranslateStatic        = 34,
+	kXTranslateEdit          = 35,
+	kYTranslateStatic        = 36,
+	kYTranslateEdit          = 37,
+	kZTranslateStatic        = 38,
+	kZTranslateEdit          = 39,
+	kScalePane               = 40,
+	kScaleFactorsStatic      = 41,
+	kXScaleStatic            = 42,
+	kXScaleEdit              = 43,
+	kYScaleStatic            = 44,
+	kYScaleEdit              = 45,
+	kZScaleStatic            = 46,
+	kZScaleEdit              = 47,
+	kSymetricScale           = 48,
+	kObjectPane              = 49,
+	kObjectNameStatic        = 50,
+	kPickObjectButton        = 51,
+	kObjectRotationCheck     = 52,
+	kObjectTranslationCheck  = 53,
+	kResultPane              = 54,
+	kPropertiesStatic        = 55,
+	kOulerGroup              = 56,
+	kXOulerStatic            = 57,
+	kYOulerStatic            = 58,
+	kZOulerStatic            = 59,
+	kInvertCheck             = 60,
 	kMatrixView              = 61,
 	kMatrix0RC               = 62,
 	kMatrixXCol              = 63,
@@ -129,6 +130,9 @@ ADD_DISPATCH_EVENT( kSymetricScale	, OnSymetricCheck );
 ADD_DISPATCH_EVENT( kPickObjectButton,OnPickObjectButton );
 
 ADD_DISPATCH_EVENT( kOulerGroup		, OnResultPaneChage );
+ADD_DISPATCH_EVENT( kViewPopup		, OnRenderChnage );
+ADD_DISPATCH_EVENT( kRenderPopup	, OnRenderChnage );
+ADD_DISPATCH_EVENT( kDetailedPreviewCheck, OnRenderChnage );
 ADD_DISPATCH_EVENT( kOriginPopup	, OnOriginPullDown );
 EVENT_DISPATCH_MAP_END;
 
@@ -141,9 +145,6 @@ CDlgTransformMatrix::CDlgTransformMatrix()
 	, fDetailedPreview( false )
 	, fOriginIndex( 0 )
 	, fSliderValue( 100 )
-	, fCacheObject( nullptr )
-	, fBoundObject( nullptr )
-	, fPreviewObject( nullptr )
 {
 	// Assign settings tag to this dialog so it would save it's position and size automatically
 	this->SetSavedSettingsTag( "TransformMatrix", "TransformMatrixDlg" );
@@ -160,8 +161,7 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetTransform( bool useSlider )
 	WorldPt3	offset;
 	if ( fOriginIndex )
 	{
-		WorldCube	boundCube;
-		gSDK->GetObjectCube( fCacheObject, boundCube );
+		WorldCube	boundCube	= fPreviewGeometry.GetCacheCube();
 		switch ( fOriginIndex )
 		{
 			case 1:
@@ -225,8 +225,12 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetTransform( bool useSlider )
 
 	if ( fOriginIndex )
 	{
-		VWTransformMatrix	invert( offset );
-		result	*= invert;
+		result	*= VWTransformMatrix( offset );
+	}
+
+	if ( fResultDDX.fInvert )
+	{
+		result.Invert();
 	}
 
 	return result;
@@ -235,72 +239,66 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetTransform( bool useSlider )
 void CDlgTransformMatrix::TransformObjects( MCObjectHandle targetContainer /*= nullptr*/, bool applySlider /*= false*/ )
 {
 	TransformMatrixAdvanced	transform	= this->GetTransform( applySlider );
+	bool	isOrthogonalTransform	= transform.fMatrix.IsOrthogonal();
+
+	auto transformMesh	= [ & ] ( MCObjectHandle mesh )
+	{
+		size_t	vertCount	= gSDK->GetMeshVertexCount( mesh );
+		for ( size_t vertexIndex = 0; vertexIndex < vertCount; vertexIndex++ )
+		{
+			VWPoint3D	vertexPt	= gSDK->GetMeshVertexAt( mesh, vertexIndex );
+			transform.TransformPoint( vertexPt );
+			gSDK->SetMeshVertexAt( mesh, vertexIndex, vertexPt );
+		}
+		gSDK->ResetObject( mesh );
+	};
+
 	if ( targetContainer )
 	{
-		//VWMeshObj	mesh( gSDK->DuplicateObject( fMeshObject ) );
-
 		if ( fDetailedPreview )
 		{
-			VWObject	obj( gSDK->DuplicateObject( fCacheObject ) );
-			gSDK->AddObjectToContainer( obj, targetContainer ? targetContainer : gSDK->GetActiveLayer() );
+			fPreviewGeometry.AddCacheObjectCopy( targetContainer );
 		}
 		else
 		{
-			if ( !fPreviewObject && fCacheObject )
-			{
-				gSDK->ResetObject( fCacheObject );
-
-				WorldCube	boundCube;
-				gSDK->GetObjectCube( fCacheObject, boundCube );
-
-				VWGroupObj	lociGroup;
-				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointXYZ() ) );
-				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointXYz() ) );
-				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointXyZ() ) );
-				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointXyz() ) );
-				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointxYZ() ) );
-				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointxYz() ) );
-				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.PointxyZ() ) );
-				lociGroup.AddObject( gSDK->CreateLocus3D( boundCube.Pointxyz() ) );
-				lociGroup.ResetObject();
-
-				fPreviewObject	= lociGroup;
-			}
-			if ( fPreviewObject )
-			{
-				gSDK->AddObjectToContainer( gSDK->DuplicateObject( fPreviewObject ), targetContainer ? targetContainer : gSDK->GetActiveLayer() );
-			}
+			fPreviewGeometry.AddSimplePreviewCopy( targetContainer );
 		}
 
-		VWObject	obj( gSDK->DuplicateObject( fCacheObject ) );
-		gSDK->AddObjectToContainer( obj, targetContainer ? targetContainer : gSDK->GetActiveLayer() );
-		obj.TransformObject( transform, true, true );
-		obj.ResetObject();
-
-
-		//VectorWorks::IMeshDataPtr	meshData = mesh.GetMesh();
-		//size_t	vertCount	= meshData->GetVertexCount();
-		//for ( size_t vertexIndex = 0; vertexIndex < vertCount; vertexIndex++ )
-		//{
-		//	TransformXMatrix	projectMatrix;
-		//	MatrixToXMatrix( transform, projectMatrix );
-		//	WorldPt3	vertexPt;
-		//	meshData->GetVertexPosition( vertexIndex, vertexPt );
-		//	vertexPt = XPointTransformN( vertexPt, projectMatrix );
-		//	meshData->SetVertexPosition( vertexIndex, vertexPt );
-		//}
-		//meshData->Save();
-		//mesh.ResetObject();
+		if ( isOrthogonalTransform )
+		{
+			VWObject	transformObj( fPreviewGeometry.AddCacheObjectCopy( targetContainer ) );
+			transformObj.TransformObject( transform, true, true );
+			transformObj.ResetObject();
+		}
+		else
+		{
+			MCObjectHandle	hMesh	= fPreviewGeometry.AddMeshCopy( targetContainer );
+			transformMesh( hMesh );
+		}
 	}
 	else
 	{
-		gSDK->ForEachObjectN( allSelectedAndEditable + descendIntoGroups,
+		if ( !isOrthogonalTransform )
+		{
+			gSDK->AlertInform( TXResStr( "TransformMatrixDlg", "NonOrtogonalAlert" ), "", false, fstrDialogCategory, "NonOrthogonalInform" );
+		}
+
+		gSDK->ForEachObjectN( allSelectedAndEditable,
 			[ & ] ( MCObjectHandle h )
 			{
 				gSDK->AddBothSwapObject( h );
-				VWObject	obj( h );
-				obj.TransformObject( transform, true, true );
-				obj.ResetObject();
+				if ( isOrthogonalTransform )
+				{
+					VWObject	obj( h );
+					obj.TransformObject( transform, true, true );
+					obj.ResetObject();
+				}
+				else
+				{
+					h	= gSDK->ConvertTo3DPolygons( h );
+					gSDK->GroupToMesh( h );
+					transformMesh( h );
+				}
 			} );
 	}
 }
@@ -366,18 +364,8 @@ void CDlgTransformMatrix::OnInitializeContent()
 		pOriginPopup->AddItem( TXResStr( "TransformMatrixDlg", TXString( "Bound" ) << currOrigin ) );
 	}
 
+	fRenderChange	= true;
 	this->GetSliderCtrlByID( kSlider )->SetSliderLiveUpdate( true );
-
-	VWGroupObj	selGroup;
-	gSDK->ForEachObjectN
-		(	allSelectedAndEditable
-		,	[ & ] ( MCObjectHandle h )
-			{
-				selGroup.AddObject( gSDK->DuplicateObject( h ) );
-			}	
-		);
-	fCacheObject	= /*gSDK->ConvertTo3DPolygons( */selGroup /*)*/;
-	//gSDK->GroupToMesh( fMeshObject );
 }
 
 void CDlgTransformMatrix::OnDDXInitialize()
@@ -429,7 +417,7 @@ void CDlgTransformMatrix::OnUpdateUI()
 
 void CDlgTransformMatrix::OnSetDownEvent()
 {
-	this->ClearPreviewGeometry();
+	fPreviewGeometry.Clear();
 	VWDialog::OnSetDownEvent();
 }
 
@@ -534,19 +522,14 @@ void CDlgTransformMatrix::OnNormalizeAsix( Sint32 controlID, VWDialogEventArgs &
 
 void CDlgTransformMatrix::OnScaleEdit( Sint32 controlID, VWDialogEventArgs & eventArgs )
 {
-	if ( this->GetCurrentDDX().fSymetricScale )
+	SDDXData& currentData		= this->GetCurrentDDX();
+	if ( currentData.fSymetricScale )
 	{
 		double	value	= this->GetEditRealCtrlByID( controlID )->GetEditReal( VWEditRealCtrl::kEditControlReal );
-		auto setEditValue	= [ & ] ( Sint32 forControlID )
-		{
-			if ( controlID != forControlID )
-			{
-				this->GetEditRealCtrlByID( forControlID )->SetEditReal( value, VWEditRealCtrl::kEditControlReal );
-			}
-		};
-		setEditValue( kXScaleEdit );
-		setEditValue( kYScaleEdit );
-		setEditValue( kZScaleEdit );
+		currentData.fXScaleEdit		= value;
+		currentData.fYScaleEdit		= value;
+		currentData.fZScaleEdit		= value;
+		this->UpdateData( true );
 	}
 }
 
@@ -577,10 +560,15 @@ void CDlgTransformMatrix::OnResultPaneChage( Sint32 controlID, VWDialogEventArgs
 	this->CalculateResultPane();
 }
 
-void CDlgTransformMatrix::OnOriginPullDown( Sint32 controlID, VWDialogEventArgs & eventArgs )
+void CDlgTransformMatrix::OnRenderChnage( Sint32 controlID, VWDialogEventArgs & eventArgs )
 {
+	fRenderChange	= true;
+}
+
+void CDlgTransformMatrix::OnOriginPullDown( Sint32 controlID, VWDialogEventArgs & eventArgs )
+{/*
 	gSDK->DeleteObject( fBoundObject );
-	fBoundObject	= nullptr;
+	fBoundObject	= nullptr;*/
 }
 
 void CDlgTransformMatrix::OnAddButton(Sint32 controlID, VWDialogEventArgs& eventArgs)
@@ -643,7 +631,6 @@ void CDlgTransformMatrix::RebuildDDX()
 	if ( ETransformType( currentData.fTransformType ) != ETransformType::Result )
 	{
 		this->AddDDX_PulldownMenu(kTypePopup			, &currentData.fTransformType );
-		this->AddDDX_CheckButton( kInvertCheck			, &currentData.fInvert );
 		this->AddDDX_RadioButton( kXRotRadio			, &currentData.fXRotRadio );
 		this->AddDDX_RadioButton( kYRotRadio			, &currentData.fYRotRadio );
 		this->AddDDX_RadioButton( kZRotRadio			, &currentData.fZRotRadio );
@@ -664,6 +651,7 @@ void CDlgTransformMatrix::RebuildDDX()
 	}
 
 	this->AddDDX_PulldownMenu( kOulerGroup	, &fOulerIndexPopup );
+	this->AddDDX_CheckButton ( kInvertCheck	, &currentData.fInvert );
 	this->AddDDX_CheckButton ( kFormulaView	, &fFormulaView );
 
 	this->UpdatePanes();
@@ -775,7 +763,8 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetMatrixForDDX( const SDDXData & d
 			VWPoint3D	scale( data.fXScaleEdit, data.fYScaleEdit, data.fZScaleEdit );
 			if ( useSlider )
 			{
-				scale	*= this->SliderPercent();
+				VWPoint3D	one( 1, 1, 1 );
+				scale	=  ( scale - one )*this->SliderPercent() + one;
 			}
 			result.ScaleAfter( scale.x, scale.y, scale.z );
 			break;
@@ -831,10 +820,14 @@ void CDlgTransformMatrix::CalculateResultPane()
 {
 	TransformMatrixAdvanced	resultMat	= this->GetTransform( false );
 
-	TXString	labelAffine	= TXResStr( "TransformMatrixDlg", "kAffine" );
-	labelAffine.Replace( "^1"
-		, resultMat.IsAffine() ? TXResStr( "TransformMatrixDlg", "Affine" ) : TXResStr( "TransformMatrixDlg", "NotAffine" ) );
-	this->GetStaticTextCtrlByID( kAffine )->SetControlText( labelAffine );
+	TXString	labelProperties	= TXResStr( "TransformMatrixDlg", "kPropertiesStatic" );
+	labelProperties.Replace( "^1"	, resultMat.IsAffine()
+									? TXResStr( "TransformMatrixDlg", "Affine" )
+									: TXResStr( "TransformMatrixDlg", "NotAffine" ) );
+	labelProperties.Replace( "^2"	, resultMat.fMatrix.IsOrthogonal()
+									? TXResStr( "TransformMatrixDlg", "Orthogonal" )
+									: TXResStr( "TransformMatrixDlg", "NotOrthogonal" ) );
+	this->GetStaticTextCtrlByID( kPropertiesStatic )->SetControlText( labelProperties );
 
 	VWPoint3D	angle	= resultMat.GetOulerAngles( fOulerIndexPopup );
 
@@ -990,16 +983,22 @@ void CDlgTransformMatrix::UpdateMatrixView()
 
 void CDlgTransformMatrix::UpdatePreview()
 {
-	VWSymbolDefObj	previewDef( "____SymbolDefPreview" );
-	previewDef.DeleteAllInnerObjects();
-	this->TransformObjects( previewDef, true );
-	previewDef.ResetObject();
+	if	(	fRenderChange
+		||	!fLastTransform.IsEqual( this->GetTransform( true ) ) )
+	{
+		VWSymbolDefObj	previewDef( "____SymbolDefPreview" );
+		previewDef.DeleteAllInnerObjects();
+		this->TransformObjects( previewDef, true );
+		previewDef.ResetObject();
+		fLastTransform	= this->GetTransform( true );
+		fRenderChange	= false;
 
-	SymbolImgInfo imgInfoIn( (TStandardView) fViewMarker, (TRenderMode) fRenderMarker, EImageViewComponent::NotSet, false/*scaleByZoom*/ );
-	gSDK->UpdateSymbolDisplayControl( this->GetDialogID()
-		, kPreview
-		, previewDef.GetObjectName()
-		, imgInfoIn);
+		SymbolImgInfo imgInfoIn( (TStandardView) fViewMarker, (TRenderMode) fRenderMarker, EImageViewComponent::NotSet, false/*scaleByZoom*/ );
+		gSDK->UpdateSymbolDisplayControl( this->GetDialogID()
+										, kPreview
+										, "____SymbolDefPreview"
+										, imgInfoIn );
+	}
 }
 
 double CDlgTransformMatrix::SliderPercent()
@@ -1047,19 +1046,105 @@ TXString CDlgTransformMatrix::GetNewName( const TXString & oldName )
 	return newName;
 }
 
-void CDlgTransformMatrix::ClearPreviewGeometry()
+CDlgTransformMatrix::CPreviewGeometry::CPreviewGeometry()
+	: fCacheObject( nullptr )
+	, fPreviewObject( nullptr )
+	, fMeshObject( nullptr )
+{
+}
+
+CDlgTransformMatrix::CPreviewGeometry::~CPreviewGeometry()
+{
+}
+
+MCObjectHandle CDlgTransformMatrix::CPreviewGeometry::AddCacheObjectCopy( MCObjectHandle inContainer )
+{
+	MCObjectHandle	result	= gSDK->DuplicateObject( this->GetOrGenerateCache() );
+	gSDK->AddObjectToContainer( result, inContainer );
+
+	return result;
+}
+
+MCObjectHandle CDlgTransformMatrix::CPreviewGeometry::AddSimplePreviewCopy( MCObjectHandle inContainer )
+{
+	if ( !fPreviewObject )
+	{
+		WorldCube		boundCube	= this->GetCacheCube();
+		VWRectangle2D	baseRect	( boundCube.left, boundCube.right, boundCube.top, boundCube.bottom );
+		VWPolygon2DObj	basePoly	( baseRect );
+
+		VWExtrudeObj	extrude		( basePoly, boundCube.back, boundCube.front );
+		gSDK->AddAfterSwapObject( extrude );
+		fPreviewObject	= gSDK->ConvertTo3DPolygons( extrude );
+		gSDK->AddAfterSwapObject( fPreviewObject );
+
+		VWObjectAttr( fPreviewObject ).SetFillNone();
+		gSDK->ResetObject( fPreviewObject );
+	}
+	
+	MCObjectHandle	result	= gSDK->DuplicateObject( fPreviewObject );
+	gSDK->AddObjectToContainer( result, inContainer );
+	return result;
+}
+
+MCObjectHandle CDlgTransformMatrix::CPreviewGeometry::AddMeshCopy( MCObjectHandle inContainer )
+{
+	if ( !fMeshObject )
+	{
+		VWGroupObj	meshGroup;
+		gSDK->AddAfterSwapObject( meshGroup );
+		MCObjectHandle	mesh = gSDK->ConvertTo3DPolygons( this->AddCacheObjectCopy( meshGroup ) );
+		gSDK->AddAfterSwapObject( mesh );
+		gSDK->GroupToMesh( mesh );
+		gSDK->AddAfterSwapObject( mesh );
+		fMeshObject	= meshGroup;
+	}
+
+	MCObjectHandle	result	= gSDK->DuplicateObject( gSDK->FirstMemberObj( fMeshObject ) );
+	gSDK->AddObjectToContainer( result, inContainer );
+	return result;
+}
+
+WorldCube CDlgTransformMatrix::CPreviewGeometry::GetCacheCube()
+{
+	WorldCube	boundCube;
+	gSDK->GetObjectCube( this->GetOrGenerateCache(), boundCube );
+	return boundCube;
+}
+
+void CDlgTransformMatrix::CPreviewGeometry::Clear()
 {
 	auto clearObject	= [] ( MCObjectHandle& handle )
 	{
 		if ( handle )
 		{
-			gSDK->DeleteObjectNoNotify( handle );
+			gSDK->AddBeforeSwapObject( handle );
+			gSDK->DeleteObject( handle );
 		}
 		handle	= nullptr;
 	};
 	clearObject( fCacheObject );
-	clearObject( fBoundObject );
 	clearObject( fPreviewObject );
+	clearObject( fMeshObject );
+	MCObjectHandle	symbol	= gSDK->GetNamedObject( "____SymbolDefPreview" );
+	clearObject( symbol );
 }
 
-
+MCObjectHandle CDlgTransformMatrix::CPreviewGeometry::GetOrGenerateCache()
+{
+	if ( !fCacheObject )
+	{
+		VWGroupObj	selGroup;
+		gSDK->AddAfterSwapObject( selGroup );
+		gSDK->ForEachObjectN
+		( allSelectedAndEditable
+			, [ & ] ( MCObjectHandle h )
+			{
+				selGroup.AddObject( gSDK->DuplicateObject( h ) );
+			}
+		);
+		selGroup.ResetObject();
+		fCacheObject	= selGroup ;
+	}
+	return fCacheObject;
+}

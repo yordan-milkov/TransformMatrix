@@ -41,6 +41,7 @@ namespace CreateTransformMatrix
 		void					OnSymetricCheck( Sint32 controlID, VWDialogEventArgs& eventArgs );
 		void					OnPickObjectButton( Sint32 controlID, VWDialogEventArgs& eventArgs );
 		void					OnResultPaneChage( Sint32 controlID, VWDialogEventArgs& eventArgs );
+		void					OnRenderChnage( Sint32 controlID, VWDialogEventArgs& eventArgs );
 		void					OnOriginPullDown( Sint32 controlID, VWDialogEventArgs& eventArgs );
 
 		// DDX
@@ -59,7 +60,6 @@ namespace CreateTransformMatrix
 			bool			fUse;
 			TXString		fName;
 			Sint32			fTransformType;
-			bool			fInvert;
 			bool			fXRotRadio;
 			bool			fYRotRadio;
 			bool			fZRotRadio;
@@ -76,13 +76,13 @@ namespace CreateTransformMatrix
 			InternalIndex	fObjectIndex;
 			bool			fObjectRotation;
 			bool			fObjectTrans;
+			bool			fInvert;
 
 			SDDXData()
 				: fAsixRotEdit( 1, 0, 0 )
 			{
 				fUse			= true;
 				fTransformType	= (Sint32) ETransformType::Result;
-				fInvert			= false;
 				fXRotRadio		= true;
 				fYRotRadio		= false;
 				fZRotRadio		= false;
@@ -98,6 +98,7 @@ namespace CreateTransformMatrix
 				fObjectIndex	= -1;
 				fObjectRotation	= true;
 				fObjectTrans	= true;
+				fInvert			= false;
 			}
 		};
 		std::vector< SDDXData >	fDDXControls;
@@ -122,15 +123,39 @@ namespace CreateTransformMatrix
 		void					UpdatePreview();
 		double					SliderPercent();
 		TXString				GetNewName( const TXString& oldName );
-		void					ClearPreviewGeometry();
 
 		// Inner data
 	private:
+		class CPreviewGeometry
+		{
+		public:
+			CPreviewGeometry();
+			~CPreviewGeometry();
+
+		public:
+			MCObjectHandle		AddCacheObjectCopy(MCObjectHandle inContainer);
+			MCObjectHandle		AddSimplePreviewCopy(MCObjectHandle inContainer);
+			MCObjectHandle		AddMeshCopy(MCObjectHandle inContainer);
+
+			WorldCube			GetCacheCube();
+
+			void				Clear();
+
+		protected:
+			MCObjectHandle		GetOrGenerateCache();
+
+		private:
+			MCObjectHandle		fCacheObject;
+			MCObjectHandle		fPreviewObject;
+			MCObjectHandle		fMeshObject;
+		};
+
 		size_t					fSelectedIndex;
-		MCObjectHandle			fCacheObject;
-		MCObjectHandle			fBoundObject;
-		MCObjectHandle			fPreviewObject;
 		size_t					fLBBlankImageID;
 		size_t					fLBCheckMarkImageID;
+
+		CPreviewGeometry		fPreviewGeometry;
+		TransformMatrixAdvanced	fLastTransform;
+		bool					fRenderChange;
 	};
 }

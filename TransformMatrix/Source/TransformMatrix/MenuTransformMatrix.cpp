@@ -51,13 +51,13 @@ void CMenuTransformMatrix_EventSink::DoInterface()
 	{
 		if ( fDialog.RunDialogLayout( "" ) == kDialogButton_Ok )
 		{
-			fDialog.TransformObjects( nullptr, true );
+			fDialog.TransformObjects();
 		}
 		gSDK->EndUndoEvent();
 	}
 	else
 	{
-		gSDK->AlertCritical( "select" );
+		gSDK->AlertCritical( TXResStr( "MenuTransformMatrix", "SelectObjectAlert" ) );
 	}
 }
 
