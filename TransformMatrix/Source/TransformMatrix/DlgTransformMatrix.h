@@ -11,10 +11,10 @@ namespace CreateTransformMatrix
 		virtual					~CDlgTransformMatrix();
 
 		TransformMatrixAdvanced	GetTransform( bool useSlider );
-		void					TransformObjects( MCObjectHandle targetContainer = nullptr, bool useSlider = false );
+		void					TransformObject( VWObject handle = nullptr, bool useSlider = false );
 
-	public :
-
+	protected:
+		void					TransformObjectReq( VWObject& object, const TransformMatrixAdvanced& transform, bool isOrthogonal );
 
 		// virtuals
 	protected:
@@ -42,7 +42,7 @@ namespace CreateTransformMatrix
 		void					OnPickObjectButton( Sint32 controlID, VWDialogEventArgs& eventArgs );
 		void					OnResultPaneChage( Sint32 controlID, VWDialogEventArgs& eventArgs );
 		void					OnRenderChnage( Sint32 controlID, VWDialogEventArgs& eventArgs );
-		void					OnOriginPullDown( Sint32 controlID, VWDialogEventArgs& eventArgs );
+		void					OnDetailedPreviewChnage( Sint32 controlID, VWDialogEventArgs& eventArgs );
 
 		// DDX
 	protected:
@@ -156,6 +156,7 @@ namespace CreateTransformMatrix
 
 		CPreviewGeometry		fPreviewGeometry;
 		TransformMatrixAdvanced	fLastTransform;
+		bool					fDetailChange;
 		bool					fRenderChange;
 	};
 }

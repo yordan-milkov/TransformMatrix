@@ -132,8 +132,7 @@ ADD_DISPATCH_EVENT( kPickObjectButton,OnPickObjectButton );
 ADD_DISPATCH_EVENT( kOulerGroup		, OnResultPaneChage );
 ADD_DISPATCH_EVENT( kViewPopup		, OnRenderChnage );
 ADD_DISPATCH_EVENT( kRenderPopup	, OnRenderChnage );
-ADD_DISPATCH_EVENT( kDetailedPreviewCheck, OnRenderChnage );
-ADD_DISPATCH_EVENT( kOriginPopup	, OnOriginPullDown );
+ADD_DISPATCH_EVENT( kDetailedPreviewCheck, OnDetailedPreviewChnage );
 EVENT_DISPATCH_MAP_END;
 
 CDlgTransformMatrix::CDlgTransformMatrix()
@@ -236,45 +235,14 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetTransform( bool useSlider )
 	return result;
 }
 
-void CDlgTransformMatrix::TransformObjects( MCObjectHandle targetContainer /*= nullptr*/, bool applySlider /*= false*/ )
+void CDlgTransformMatrix::TransformObject( VWObject handle /*= nullptr*/, bool useSlider /*= false*/ )
 {
-	TransformMatrixAdvanced	transform	= this->GetTransform( applySlider );
+	TransformMatrixAdvanced	transform	= this->GetTransform( useSlider );
 	bool	isOrthogonalTransform	= transform.fMatrix.IsOrthogonal();
 
-	auto transformMesh	= [ & ] ( MCObjectHandle mesh )
+	if ( handle )
 	{
-		size_t	vertCount	= gSDK->GetMeshVertexCount( mesh );
-		for ( size_t vertexIndex = 0; vertexIndex < vertCount; vertexIndex++ )
-		{
-			VWPoint3D	vertexPt	= gSDK->GetMeshVertexAt( mesh, vertexIndex );
-			transform.TransformPoint( vertexPt );
-			gSDK->SetMeshVertexAt( mesh, vertexIndex, vertexPt );
-		}
-		gSDK->ResetObject( mesh );
-	};
-
-	if ( targetContainer )
-	{
-		if ( fDetailedPreview )
-		{
-			fPreviewGeometry.AddCacheObjectCopy( targetContainer );
-		}
-		else
-		{
-			fPreviewGeometry.AddSimplePreviewCopy( targetContainer );
-		}
-
-		if ( isOrthogonalTransform )
-		{
-			VWObject	transformObj( fPreviewGeometry.AddCacheObjectCopy( targetContainer ) );
-			transformObj.TransformObject( transform, true, true );
-			transformObj.ResetObject();
-		}
-		else
-		{
-			MCObjectHandle	hMesh	= fPreviewGeometry.AddMeshCopy( targetContainer );
-			transformMesh( hMesh );
-		}
+		this->TransformObjectReq( handle, transform, isOrthogonalTransform );
 	}
 	else
 	{
@@ -284,22 +252,58 @@ void CDlgTransformMatrix::TransformObjects( MCObjectHandle targetContainer /*= n
 		}
 
 		gSDK->ForEachObjectN( allSelectedAndEditable,
-			[ & ] ( MCObjectHandle h )
+			[ & ] ( VWObject obj )
 			{
-				gSDK->AddBothSwapObject( h );
-				if ( isOrthogonalTransform )
-				{
-					VWObject	obj( h );
-					obj.TransformObject( transform, true, true );
-					obj.ResetObject();
-				}
-				else
-				{
-					h	= gSDK->ConvertTo3DPolygons( h );
-					gSDK->GroupToMesh( h );
-					transformMesh( h );
-				}
+				gSDK->AddBothSwapObject( obj );
+				this->TransformObjectReq( obj, transform, isOrthogonalTransform );
+				obj.ResetObject();
 			} );
+	}
+}
+
+void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformMatrixAdvanced& transform, bool isOrthogonal )
+{
+	short prop = gSDK->GetObjTypeProperties( object.GetType() );
+	if ( ( prop & prGraphicObject ) != 0 )
+	{
+		if ( isOrthogonal )
+		{
+			if ( object.GetType() == kGroupNode )
+			{
+				for ( VWObject currObj : VWGroupObj( object ) )
+				{
+					this->TransformObjectReq( currObj, transform, isOrthogonal );
+				}
+			}
+			else if ( object.GetType() == kSolidNode )
+			{
+				object.ApplyObjectMatrix( transform );
+			}
+			else
+			{
+				object.TransformObject( transform, true, true );
+			}
+		}
+		else
+		{
+			if ( object.GetType() != kMeshNode )
+			{
+				object	= gSDK->ConvertTo3DPolygons( object );
+				gSDK->AddAfterSwapObject( object );
+				gSDK->GroupToMesh( object );
+			}
+
+			if ( object.GetType() == kMeshNode )
+			{
+				size_t	vertCount	= gSDK->GetMeshVertexCount( object );
+				for ( size_t vertexIndex = 0; vertexIndex < vertCount; vertexIndex++ )
+				{
+					VWPoint3D	vertexPt	= gSDK->GetMeshVertexAt( object, vertexIndex );
+					transform.TransformPoint( vertexPt );
+					gSDK->SetMeshVertexAt( object, vertexIndex, vertexPt );
+				}
+			}
+		}
 	}
 }
 
@@ -365,6 +369,7 @@ void CDlgTransformMatrix::OnInitializeContent()
 	}
 
 	fRenderChange	= true;
+	fDetailChange	= true;
 	this->GetSliderCtrlByID( kSlider )->SetSliderLiveUpdate( true );
 }
 
@@ -565,10 +570,9 @@ void CDlgTransformMatrix::OnRenderChnage( Sint32 controlID, VWDialogEventArgs & 
 	fRenderChange	= true;
 }
 
-void CDlgTransformMatrix::OnOriginPullDown( Sint32 controlID, VWDialogEventArgs & eventArgs )
-{/*
-	gSDK->DeleteObject( fBoundObject );
-	fBoundObject	= nullptr;*/
+void CDlgTransformMatrix::OnDetailedPreviewChnage( Sint32 controlID, VWDialogEventArgs & eventArgs )
+{
+	fDetailChange	= true;
 }
 
 void CDlgTransformMatrix::OnAddButton(Sint32 controlID, VWDialogEventArgs& eventArgs)
@@ -711,8 +715,12 @@ void CDlgTransformMatrix::UpdatePanes()
 		ETransformType	transformType		= ETransformType( currentData.fTransformType );
 		if ( transformType == ETransformType::ObjectMat )
 		{
-			TXString	objNameLabel	= TXResStr( "TransformMatrixDlg", "kObjectNameStatic" );
-			TXString	replaceText		= VWObject( VWObject::InternalIndex2Handle( currentData.fObjectIndex ) ).GetObjectName();
+			TXString		objNameLabel	= TXResStr( "TransformMatrixDlg", "kObjectNameStatic" );
+			MCObjectHandle	object;
+			TXString		replaceText		=	(	currentData.fObjectIndex > 0
+												&&	( object = VWObject::InternalIndex2Handle( currentData.fObjectIndex ) ) != nullptr )
+											?	VWObject( object ).GetObjectName()
+											:	"";
 			if ( replaceText.IsEmpty() )
 			{
 				replaceText	= TXResStr( "TransformMatrixDlg", "NoPickObject" );
@@ -983,21 +991,43 @@ void CDlgTransformMatrix::UpdateMatrixView()
 
 void CDlgTransformMatrix::UpdatePreview()
 {
-	if	(	fRenderChange
-		||	!fLastTransform.IsEqual( this->GetTransform( true ) ) )
+	TransformMatrixAdvanced	transform	= this->GetTransform( true );
+	if	(	fDetailChange
+		||	!fLastTransform.IsEqual( transform )
+		||	gSDK->GetNamedObject( "____SymbolDefPreview" ) == nullptr )
 	{
 		VWSymbolDefObj	previewDef( "____SymbolDefPreview" );
 		previewDef.DeleteAllInnerObjects();
-		this->TransformObjects( previewDef, true );
-		previewDef.ResetObject();
-		fLastTransform	= this->GetTransform( true );
-		fRenderChange	= false;
+		if ( fDetailedPreview )
+		{
+			fPreviewGeometry.AddCacheObjectCopy( previewDef );
+		}
+		else
+		{
+			fPreviewGeometry.AddSimplePreviewCopy( previewDef );
+		}
 
+		bool	isOrthogonal	= transform.fMatrix.IsOrthogonal();
+		VWObject	transformObj( isOrthogonal
+								? fPreviewGeometry.AddCacheObjectCopy( previewDef )
+								: fPreviewGeometry.AddMeshCopy( previewDef ) );
+		this->TransformObjectReq( transformObj, transform, isOrthogonal );
+		transformObj.ResetObject();
+
+		previewDef.ResetObject();
+		fLastTransform	= transform;
+		fDetailChange	= false;
+		fRenderChange	= true;
+	}
+
+	if ( fRenderChange )
+	{
 		SymbolImgInfo imgInfoIn( (TStandardView) fViewMarker, (TRenderMode) fRenderMarker, EImageViewComponent::NotSet, false/*scaleByZoom*/ );
 		gSDK->UpdateSymbolDisplayControl( this->GetDialogID()
 										, kPreview
 										, "____SymbolDefPreview"
 										, imgInfoIn );
+		fRenderChange	= false;
 	}
 }
 
@@ -1070,10 +1100,10 @@ MCObjectHandle CDlgTransformMatrix::CPreviewGeometry::AddSimplePreviewCopy( MCOb
 	if ( !fPreviewObject )
 	{
 		WorldCube		boundCube	= this->GetCacheCube();
-		VWRectangle2D	baseRect	( boundCube.left, boundCube.right, boundCube.top, boundCube.bottom );
+		VWRectangle2D	baseRect	( boundCube.MinX(), boundCube.MaxX(), boundCube.MinY(), boundCube.MaxY() );
 		VWPolygon2DObj	basePoly	( baseRect );
 
-		VWExtrudeObj	extrude		( basePoly, boundCube.back, boundCube.front );
+		VWExtrudeObj	extrude		( basePoly, boundCube.MinZ(), boundCube.MaxZ() - boundCube.MinZ() );
 		gSDK->AddAfterSwapObject( extrude );
 		fPreviewObject	= gSDK->ConvertTo3DPolygons( extrude );
 		gSDK->AddAfterSwapObject( fPreviewObject );
@@ -1094,9 +1124,7 @@ MCObjectHandle CDlgTransformMatrix::CPreviewGeometry::AddMeshCopy( MCObjectHandl
 		VWGroupObj	meshGroup;
 		gSDK->AddAfterSwapObject( meshGroup );
 		MCObjectHandle	mesh = gSDK->ConvertTo3DPolygons( this->AddCacheObjectCopy( meshGroup ) );
-		gSDK->AddAfterSwapObject( mesh );
 		gSDK->GroupToMesh( mesh );
-		gSDK->AddAfterSwapObject( mesh );
 		fMeshObject	= meshGroup;
 	}
 
