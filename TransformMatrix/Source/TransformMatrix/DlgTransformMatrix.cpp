@@ -754,6 +754,21 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetMatrixForDDX( const SDDXData & d
 				angle	*= this->SliderPercent();
 			}
 			result.SetRotation( angle, data.fAsixRotEdit );
+			if ( DoublesAreNotNearlyEqual( data.fAsixRotEdit.MagnitudeSquared(), 1 ) )
+			{
+				VWPoint3D	normal	= data.fAsixRotEdit.GetNormalized();
+
+				VWPoint3D	scale;
+				scale.x		= DoubleIsNearlyZero( normal.x ) ? 1 : data.fAsixRotEdit.x / normal.x;
+				scale.y		= DoubleIsNearlyZero( normal.y ) ? 1 : data.fAsixRotEdit.y / normal.y;
+				scale.z		= DoubleIsNearlyZero( normal.z ) ? 1 : data.fAsixRotEdit.z / normal.z;
+				if ( useSlider )
+				{
+					VWPoint3D	one( 1, 1, 1 );
+					scale	=  ( scale - one )*this->SliderPercent() + one;
+				}
+				result.ScaleAfter( scale.x, scale.y, scale.z );
+			}
 			break;
 		}
 		case ETransformType::Translation:
@@ -991,12 +1006,18 @@ void CDlgTransformMatrix::UpdateMatrixView()
 
 void CDlgTransformMatrix::UpdatePreview()
 {
-	TransformMatrixAdvanced	transform	= this->GetTransform( true );
+	TransformMatrixAdvanced	transform		= this->GetTransform( true );
+	MCObjectHandle			hPreviewSymbol	= gSDK->GetNamedObject( "____SymbolDefPreview" );
 	if	(	fDetailChange
 		||	!fLastTransform.IsEqual( transform )
-		||	gSDK->GetNamedObject( "____SymbolDefPreview" ) == nullptr )
+		||	hPreviewSymbol == nullptr )
 	{
-		VWSymbolDefObj	previewDef( "____SymbolDefPreview" );
+		if ( hPreviewSymbol == nullptr )
+		{
+			hPreviewSymbol	= VWSymbolDefObj( "____SymbolDefPreview" );
+			gSDK->AddAfterSwapObject( hPreviewSymbol );
+		}
+		VWGroupObj	previewDef( hPreviewSymbol );
 		previewDef.DeleteAllInnerObjects();
 		if ( fDetailedPreview )
 		{
