@@ -15,9 +15,6 @@ namespace CreateTransformMatrix
 
 
 		virtual void	DoInterface();
-
-	protected:
-		//void SetStageTexture( VWParametricObj& stageParamObj, EStageColor color, const TXString & texture, const TXString & boolParam, const TXString & stringParam );
 	
 	private:
 		CDlgTransformMatrix	fDialog;
@@ -31,9 +28,5 @@ namespace CreateTransformMatrix
 					CExtMenuTransformMatrix( CallBackPtr cbp );
 
 		virtual		~CExtMenuTransformMatrix();
-
-	protected:
-		// some functions used for the Create Stage menu command
-		//static void SetStageSlabProperties( MCObjectHandle slab, SCreateStageData data );
 	};
 }

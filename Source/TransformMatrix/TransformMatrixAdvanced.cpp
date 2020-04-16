@@ -18,14 +18,14 @@ bool TransformMatrixAdvanced::IsAffine()
 	return true;
 }
 
-VWPoint3D TransformMatrixAdvanced::GetOulerAngles( size_t notation /*= 0*/ )
+VWPoint3D TransformMatrixAdvanced::GetOulerAngles( EOulerAnglesOrder order /*= EOulerAnglesOrder::XYZ*/ )
 {
 	auto		matrixData	= fMatrix.mat;
 	VWPoint3D	angles;
 
-	size_t	i0	= ( 0 + notation ) % 3;
-	size_t	i1	= ( 1 + notation ) % 3;
-	size_t	i2	= ( 2 + notation ) % 3;
+	size_t	i0	= ( 0 + size_t(order) ) % 3;
+	size_t	i1	= ( 1 + size_t(order) ) % 3;
+	size_t	i2	= ( 2 + size_t(order) ) % 3;
 
 	/*bank*/
 	if	(	DoublesAreNearlyEqual( matrixData[ i1 ][ i0 ], 1 )
@@ -72,7 +72,7 @@ VWPoint3D TransformMatrixAdvanced::GetOulerAngles( size_t notation /*= 0*/ )
 	return angles;
 }
 
-void TransformMatrixAdvanced::SetOulerAnglesRotation( const VWPoint3D& angles, size_t notation )
+void TransformMatrixAdvanced::SetOulerAnglesRotation( const VWPoint3D& angles, EOulerAnglesOrder order /*= EOulerAnglesOrder::XYZ*/ )
 {
 	VWPoint3D	savedOffset	= this->GetOffset();
 	::SetMultiAxisSpinMatrix( fMatrix, kXAxis, kYAxis, kZAxis, angles.x, angles.y, angles.z, WorldPt3( 0, 0, 0 ), true );

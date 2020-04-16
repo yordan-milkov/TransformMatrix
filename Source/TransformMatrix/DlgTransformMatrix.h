@@ -101,15 +101,16 @@ namespace CreateTransformMatrix
 				fInvert			= false;
 			}
 		};
-		std::vector< SDDXData >	fDDXControls;
-		SDDXData	fResultDDX;
-		size_t		fOulerIndexPopup;
-		bool		fFormulaView;
-		Sint32		fViewMarker;
-		Sint32		fRenderMarker;
-		bool		fDetailedPreview;
-		short		fOriginIndex;
-		Sint32		fSliderValue;
+		using	TTransformDXXArr	= std::vector< SDDXData >;
+		TTransformDXXArr	fDDXControls;
+		SDDXData			fResultDDX;
+		size_t				fOulerIndexPopup;
+		bool				fFormulaView;
+		Sint32				fViewMarker;
+		Sint32				fRenderMarker;
+		bool				fDetailedPreview;
+		short				fOriginIndex;
+		Sint32				fSliderValue;
 
 		// local functions
 	private:

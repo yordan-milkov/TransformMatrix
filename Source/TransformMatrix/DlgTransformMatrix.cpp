@@ -6,98 +6,97 @@
 
 using namespace CreateTransformMatrix;
 // dialog control IDs
-// dialog control IDs
 enum ETransformMatrixDlg {
 	kOK                      = 1,
 	kCancel                  = 2,
 	kGenerateTranGrp         = 4,
-	kTransformsList          = 5,
-	kAddButton               = 6,
-	kRenameButton            = 7,
-	kRemoveButton            = 8,
-	kTransformGrp            = 9,
-	kResultSwap              = 10,
-	kTransformPane           = 11,
-	kNameStatic              = 12,
-	kTransformTypeGrp        = 13,
-	kTypePopup               = 14,
-	kTransformSwap           = 15,
-	kRatationPane            = 16,
-	kRotationAsixGrp         = 17,
-	kXRotRadio               = 18,
-	kYRotRadio               = 19,
-	kZRotRadio               = 20,
-	kAsixRotRadio            = 21,
-	kAxisRotStatic           = 22,
-	kXRotStatic              = 23,
-	kXRotEdit                = 24,
-	kYRotStatic              = 25,
-	kYRotEdit                = 26,
-	kZRotStatic              = 27,
-	kZRotEdit                = 28,
-	kNormAsixBtn             = 29,
-	kRotAngleStatic          = 30,
-	kRotAngleEdit            = 31,
-	kTranslationPane         = 32,
-	kTranslationCoordsStatic = 33,
-	kXTranslateStatic        = 34,
-	kXTranslateEdit          = 35,
-	kYTranslateStatic        = 36,
-	kYTranslateEdit          = 37,
-	kZTranslateStatic        = 38,
-	kZTranslateEdit          = 39,
-	kScalePane               = 40,
-	kScaleFactorsStatic      = 41,
-	kXScaleStatic            = 42,
-	kXScaleEdit              = 43,
-	kYScaleStatic            = 44,
-	kYScaleEdit              = 45,
-	kZScaleStatic            = 46,
-	kZScaleEdit              = 47,
-	kSymetricScale           = 48,
-	kObjectPane              = 49,
-	kObjectNameStatic        = 50,
-	kPickObjectButton        = 51,
-	kObjectRotationCheck     = 52,
-	kObjectTranslationCheck  = 53,
-	kResultPane              = 54,
-	kPropertiesStatic        = 55,
-	kOulerGroup              = 56,
-	kXOulerStatic            = 57,
-	kYOulerStatic            = 58,
-	kZOulerStatic            = 59,
-	kInvertCheck             = 60,
-	kMatrixView              = 61,
-	kMatrix0RC               = 62,
-	kMatrixXCol              = 63,
-	kMatrixYCol              = 64,
-	kMatrixZCol              = 65,
-	kMatrixURow              = 66,
-	kMatrixUX                = 67,
-	kMatrixUY                = 68,
-	kMatrixUZ                = 69,
-	kMatrixVRow              = 70,
-	kMatrixVX                = 71,
-	kMatrixVY                = 72,
-	kMatrixVZ                = 73,
-	kMatrixWRow              = 74,
-	kMatrixWX                = 75,
-	kMatrixWY                = 76,
-	kMatrixWZ                = 77,
-	kMatrixORow              = 78,
-	kMatrixOX                = 79,
-	kMatrixOY                = 80,
-	kMatrixOZ                = 81,
-	kFormulaView             = 82,
-	kPreviewGrp              = 83,
-	kPreview                 = 84,
-	kViewStatic              = 85,
-	kViewPopup               = 86,
-	kRenderStatic            = 87,
-	kRenderPopup             = 88,
-	kDetailedPreviewCheck    = 89,
-	kOriginStatic            = 90,
-	kOriginPopup             = 91,
+	kOriginStatic            = 5,
+	kOriginPopup             = 6,
+	kTransformsList          = 7,
+	kAddButton               = 8,
+	kRenameButton            = 9,
+	kRemoveButton            = 10,
+	kTransformGrp            = 11,
+	kResultSwap              = 12,
+	kTransformPane           = 13,
+	kNameStatic              = 14,
+	kTransformTypeGrp        = 15,
+	kTypePopup               = 16,
+	kTransformSwap           = 17,
+	kRatationPane            = 18,
+	kRotationAsixGrp         = 19,
+	kXRotRadio               = 20,
+	kYRotRadio               = 21,
+	kZRotRadio               = 22,
+	kAsixRotRadio            = 23,
+	kAxisRotStatic           = 24,
+	kXRotStatic              = 25,
+	kXRotEdit                = 26,
+	kYRotStatic              = 27,
+	kYRotEdit                = 28,
+	kZRotStatic              = 29,
+	kZRotEdit                = 30,
+	kNormAsixBtn             = 31,
+	kRotAngleStatic          = 32,
+	kRotAngleEdit            = 33,
+	kTranslationPane         = 34,
+	kTranslationCoordsStatic = 35,
+	kXTranslateStatic        = 36,
+	kXTranslateEdit          = 37,
+	kYTranslateStatic        = 38,
+	kYTranslateEdit          = 39,
+	kZTranslateStatic        = 40,
+	kZTranslateEdit          = 41,
+	kScalePane               = 42,
+	kScaleFactorsStatic      = 43,
+	kXScaleStatic            = 44,
+	kXScaleEdit              = 45,
+	kYScaleStatic            = 46,
+	kYScaleEdit              = 47,
+	kZScaleStatic            = 48,
+	kZScaleEdit              = 49,
+	kSymetricScale           = 50,
+	kObjectPane              = 51,
+	kObjectNameStatic        = 52,
+	kPickObjectButton        = 53,
+	kObjectRotationCheck     = 54,
+	kObjectTranslationCheck  = 55,
+	kResultPane              = 56,
+	kPropertiesStatic        = 57,
+	kOulerGroup              = 58,
+	kXOulerStatic            = 59,
+	kYOulerStatic            = 60,
+	kZOulerStatic            = 61,
+	kInvertCheck             = 62,
+	kMatrixView              = 63,
+	kMatrix0RC               = 64,
+	kMatrixXCol              = 65,
+	kMatrixYCol              = 66,
+	kMatrixZCol              = 67,
+	kMatrixURow              = 68,
+	kMatrixUX                = 69,
+	kMatrixUY                = 70,
+	kMatrixUZ                = 71,
+	kMatrixVRow              = 72,
+	kMatrixVX                = 73,
+	kMatrixVY                = 74,
+	kMatrixVZ                = 75,
+	kMatrixWRow              = 76,
+	kMatrixWX                = 77,
+	kMatrixWY                = 78,
+	kMatrixWZ                = 79,
+	kMatrixORow              = 80,
+	kMatrixOX                = 81,
+	kMatrixOY                = 82,
+	kMatrixOZ                = 83,
+	kFormulaView             = 84,
+	kPreviewGrp              = 85,
+	kPreview                 = 86,
+	kViewStatic              = 87,
+	kViewPopup               = 88,
+	kRenderStatic            = 89,
+	kRenderPopup             = 90,
+	kDetailedPreviewCheck    = 91,
 	kSlider                  = 92,
 
 	// custom strings IDs
@@ -434,6 +433,7 @@ void CDlgTransformMatrix::OnListBrowser( Sint32 controlID, VWDialogEventArgs & e
 	EListBrowserEventType	eventType	= eventArgs.GetListBrowserEvent( rowIndex, colIndex );
 	if ( eventArgs.IsListBrowserDrawNDropEnd() )
 	{
+#if 0
 		// the rowIndex holds the dragged index, the first selected is the drop index
 		size_t	dragIndex	= rowIndex;
 		size_t	dropIndex	= pListBrowser->GetFirstSelected();
@@ -457,6 +457,33 @@ void CDlgTransformMatrix::OnListBrowser( Sint32 controlID, VWDialogEventArgs & e
 				this->UpdateData( true );
 			}
 		}
+#else
+		size_t	currSelIndex	= pListBrowser->GetFirstSelected();
+		TTransformDXXArr	copyDDX;
+		size_t				rowsCount	= pListBrowser->GetRowsCount();
+		for ( size_t index = 0; index < rowsCount; index++ )
+		{
+			TXString	transformName	= pListBrowser->GetItem( index, 2 ).GetItemText();
+			for ( auto item : fDDXControls )
+			{
+				if ( item.fName == transformName )
+				{
+					if ( index == currSelIndex )
+					{
+						fSelectedIndex	= copyDDX.size();
+						currSelIndex	= size_t( -1 );
+					}
+					copyDDX.push_back( item );
+					break;
+
+				}
+			}
+		}
+		fDDXControls	= copyDDX;
+
+		this->RebuildDDX();
+		this->UpdateData( true );
+#endif
 		this->RebuildListBrowser();
 	}
 	else if ( eventType == kListBrowserEventType_SelectionChangeClick )
@@ -805,9 +832,9 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetMatrixForDDX( const SDDXData & d
 				{
 					if ( useSlider && DoublesAreNotNearlyEqual( this->SliderPercent(), 1 ) )
 					{
-						VWPoint3D angles	= objectMat.GetOulerAngles( 0 );
+						VWPoint3D angles	= objectMat.GetOulerAngles();
 						angles	*= this->SliderPercent();
-						result.SetOulerAnglesRotation( angles, 0 );
+						result.SetOulerAnglesRotation( angles );
 					}
 					else
 					{
@@ -852,7 +879,7 @@ void CDlgTransformMatrix::CalculateResultPane()
 									: TXResStr( "TransformMatrixDlg", "NotOrthogonal" ) );
 	this->GetStaticTextCtrlByID( kPropertiesStatic )->SetControlText( labelProperties );
 
-	VWPoint3D	angle	= resultMat.GetOulerAngles( fOulerIndexPopup );
+	VWPoint3D	angle	= resultMat.GetOulerAngles( TransformMatrixAdvanced::EOulerAnglesOrder( fOulerIndexPopup ) );
 
 	TXString	labelX	= TXResStr( "TransformMatrixDlg", "kXOulerStatic" );
 	labelX.Replace( "^1", VWStringConv( angle.x ).GetAngleDegString() );
@@ -1043,7 +1070,7 @@ void CDlgTransformMatrix::UpdatePreview()
 
 	if ( fRenderChange )
 	{
-		SymbolImgInfo imgInfoIn( (TStandardView) fViewMarker, (TRenderMode) fRenderMarker, EImageViewComponent::NotSet, false/*scaleByZoom*/ );
+		SymbolImgInfo imgInfoIn( (TStandardView) fViewMarker, (TRenderMode) fRenderMarker, EImageViewComponent::NotSet, ELevelsOfDetail::All, false/*scaleByZoom*/ );
 		gSDK->UpdateSymbolDisplayControl( this->GetDialogID()
 										, kPreview
 										, "____SymbolDefPreview"
@@ -1074,7 +1101,7 @@ TXString CDlgTransformMatrix::GetNewName( const TXString & oldName )
 		if ( dlgSetName.RunDialogLayout( "" ) == EDialogButton::kDialogButton_Ok )
 		{
 			newName	= dlgSetName.GetValue();
-			if ( !newName.IsEmpty() )
+			if ( !newName.IsEmpty() && newName != TXResStr( "TransformMatrixDlg", "ResultRow" ) )
 			{
 				for ( auto&& currentData : fDDXControls )
 				{

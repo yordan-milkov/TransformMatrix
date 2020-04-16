@@ -11,7 +11,17 @@ namespace CreateTransformMatrix
 
 	public:
 		bool		IsAffine();
-		VWPoint3D	GetOulerAngles( size_t notation = 0 );
-		void		SetOulerAnglesRotation( const VWPoint3D& angles, size_t notation = 0 );
+
+		enum class	EOulerAnglesOrder
+		{
+			XYZ,
+			XZY,
+			YXZ,
+			YZX,
+			ZXY,
+			ZYX
+		};
+		VWPoint3D	GetOulerAngles( EOulerAnglesOrder order = EOulerAnglesOrder::XYZ );
+		void		SetOulerAnglesRotation( const VWPoint3D& angles, EOulerAnglesOrder notation = EOulerAnglesOrder::XYZ );
 	};
 }
