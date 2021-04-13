@@ -61,47 +61,161 @@ enum ETransformMatrixDlg {
 	kPickObjectButton        = 53,
 	kObjectRotationCheck     = 54,
 	kObjectTranslationCheck  = 55,
-	kResultPane              = 56,
-	kPropertiesStatic        = 57,
-	kOulerGroup              = 58,
-	kXOulerStatic            = 59,
-	kYOulerStatic            = 60,
-	kZOulerStatic            = 61,
-	kInvertCheck             = 62,
-	kMatrixView              = 63,
-	kMatrix0RC               = 64,
-	kMatrixXCol              = 65,
-	kMatrixYCol              = 66,
-	kMatrixZCol              = 67,
-	kMatrixURow              = 68,
-	kMatrixUX                = 69,
-	kMatrixUY                = 70,
-	kMatrixUZ                = 71,
-	kMatrixVRow              = 72,
-	kMatrixVX                = 73,
-	kMatrixVY                = 74,
-	kMatrixVZ                = 75,
-	kMatrixWRow              = 76,
-	kMatrixWX                = 77,
-	kMatrixWY                = 78,
-	kMatrixWZ                = 79,
-	kMatrixORow              = 80,
-	kMatrixOX                = 81,
-	kMatrixOY                = 82,
-	kMatrixOZ                = 83,
-	kFormulaView             = 84,
-	kPreviewGrp              = 85,
-	kPreview                 = 86,
-	kViewStatic              = 87,
-	kViewPopup               = 88,
-	kRenderStatic            = 89,
-	kRenderPopup             = 90,
-	kDetailedPreviewCheck    = 91,
-	kSlider                  = 92,
-
-	// custom strings IDs
+	kEulerPane               = 56,
+	kEulerEditGroup          = 57,
+	kXEulerStatic            = 58,
+	kXEulerEdit              = 59,
+	kYEulerStatic            = 60,
+	kYEulerEdit              = 61,
+	kZEulerStatic            = 62,
+	kZEulerEdit              = 63,
+	kResultPane              = 64,
+	kPropertiesStatic        = 65,
+	kEulerResultGroup        = 66,
+	kXEulerResultStatic      = 67,
+	kYEulerResultStatic      = 68,
+	kZEulerResultStatic      = 69,
+	kInvertCheck             = 70,
+	kMatrixView              = 71,
+	kMatrix0RC               = 72,
+	kMatrixXCol              = 73,
+	kMatrixYCol              = 74,
+	kMatrixZCol              = 75,
+	kMatrixURow              = 76,
+	kMatrixUX                = 77,
+	kMatrixUY                = 78,
+	kMatrixUZ                = 79,
+	kMatrixVRow              = 80,
+	kMatrixVX                = 81,
+	kMatrixVY                = 82,
+	kMatrixVZ                = 83,
+	kMatrixWRow              = 84,
+	kMatrixWX                = 85,
+	kMatrixWY                = 86,
+	kMatrixWZ                = 87,
+	kMatrixORow              = 88,
+	kMatrixOX                = 89,
+	kMatrixOY                = 90,
+	kMatrixOZ                = 91,
+	kFormulaView             = 92,
+	kPreviewGrp              = 93,
+	kPreview                 = 94,
+	kViewStatic              = 95,
+	kViewPopup               = 96,
+	kRenderStatic            = 97,
+	kRenderPopup             = 98,
+	kDetailedPreviewCheck    = 99,
+	kSlider                  = 100,
 };
 
+
+/*static*/ bool						CDlgTransformMatrix::Context::sIsToolActive			= false;
+/*static*/ Uint32					CDlgTransformMatrix::Context::sRefCnt				= 0;
+/*static*/ CDlgTransformMatrix*		CDlgTransformMatrix::Context::sDlgTransformMatrix	= nullptr;
+
+CDlgTransformMatrix::Context::Context()
+{
+	if	(	sDlgTransformMatrix == nullptr
+		&&	VERIFYN( kYKostadinov, sRefCnt == 0 ) )
+	{
+		sDlgTransformMatrix	= new CDlgTransformMatrix();
+	}
+	CDlgTransformMatrix::Context::AddRef();
+}
+
+CDlgTransformMatrix::Context::~Context()
+{
+	this->Release();
+}
+
+bool CDlgTransformMatrix::Context::IsToolActive()
+{
+	return sIsToolActive;
+}
+
+void CDlgTransformMatrix::Context::SetIsToolActive( bool isTempToolActive )
+{
+	if ( isTempToolActive )
+	{
+		if ( sIsToolActive == false )
+		{
+			CDlgTransformMatrix::Context::AddRef();
+			gSDK->RunTempTool( CExtToolPickObject::_GetIID() );
+		}
+		else
+		{
+			gSDK->PopLastToolPt();
+		}
+	}
+
+	if ( !isTempToolActive && VERIFYN( kYKostadinov, sIsToolActive == true ) )
+	{
+		CDlgTransformMatrix::Context::Release();
+	}
+	sIsToolActive	= isTempToolActive;
+}
+
+
+void CDlgTransformMatrix::Context::AddRef()
+{
+	sRefCnt++;
+}
+
+void CDlgTransformMatrix::Context::Release()
+{
+	if ( sRefCnt > 0 )
+		sRefCnt--;
+
+	if ( sRefCnt == 0 && VERIFYN( kYKostadinov, sDlgTransformMatrix ) )
+	{
+		delete sDlgTransformMatrix;
+		sDlgTransformMatrix = nullptr;
+	}
+}
+
+void CDlgTransformMatrix::Context::RunDialog()
+{
+	if ( VERIFYN( kYKostadinov, sDlgTransformMatrix ) )
+	{
+		if ( gSDK->NumSelectedObjects() > 0 )
+		{
+			gSDK->SupportUndoAndRemove();
+			gSDK->SetUndoMethod( kUndoSwapObjects );
+			if ( sDlgTransformMatrix->RunDialogLayout( "" ) == kDialogButton_Ok )
+			{
+				sDlgTransformMatrix->TransformObject();
+				gSDK->RedrawRect( WorldRect() );
+				gSDK->EndUndoEvent();
+			}
+			else
+			{
+				gSDK->UndoAndRemove();
+			}
+		}
+		else
+		{
+			gSDK->AlertCritical( TXResStr( "MenuTransformMatrix", "SelectObjectAlert" ) );
+		}
+	}
+}
+
+void CDlgTransformMatrix::Context::RunDialog( InternalIndex pickedObjectIndex )
+{
+	if ( VERIFYN( kYKostadinov, sDlgTransformMatrix ) )
+	{
+		auto& currentDDX	= sDlgTransformMatrix->GetCurrentDDX();
+		if ( VERIFYN( kYKostadinov, currentDDX.fTransformType == (Sint32) ETransformType::ObjectMat ) )
+		{
+			currentDDX.fObjectIndex	= pickedObjectIndex;
+		}
+		this->RunDialog();
+	}
+}
+
+
+
+// ------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------------------
 const Sint32	kColNumber	= 0;
 const Sint32	kColUse		= 1;
 const Sint32	kColName	= 2;
@@ -128,7 +242,7 @@ ADD_DISPATCH_EVENT( kZScaleEdit		, OnScaleEdit );
 ADD_DISPATCH_EVENT( kSymetricScale	, OnSymetricCheck );
 ADD_DISPATCH_EVENT( kPickObjectButton,OnPickObjectButton );
 
-ADD_DISPATCH_EVENT( kOulerGroup		, OnResultPaneChage );
+ADD_DISPATCH_EVENT( kEulerResultGroup,OnResultPaneChage );
 ADD_DISPATCH_EVENT( kViewPopup		, OnRenderChnage );
 ADD_DISPATCH_EVENT( kRenderPopup	, OnRenderChnage );
 ADD_DISPATCH_EVENT( kDetailedPreviewCheck, OnDetailedPreviewChnage );
@@ -267,6 +381,8 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 	{
 		if ( isOrthogonal )
 		{
+			object.TransformObjectN( transform );
+			/*
 			if ( object.GetType() == kGroupNode )
 			{
 				for ( VWObject currObj : VWGroupObj( object ) )
@@ -282,6 +398,7 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 			{
 				object.TransformObject( transform, true, true );
 			}
+			*/
 		}
 		else
 		{
@@ -308,7 +425,7 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 
 bool CDlgTransformMatrix::CreateDialogLayout()
 {
-	return this->CreateDialogLayoutFromVWR( "TransformMatrix/DialogLayout/TransformMatrixDlg.vs" );
+	return this->CreateDialogLayoutFromVWR( "DebugModule/DialogLayout/TransformMatrixDlg.vs" );
 }
 
 void CDlgTransformMatrix::OnInitializeContent()
@@ -342,13 +459,28 @@ void CDlgTransformMatrix::OnInitializeContent()
 	pTranformTypePopup->AddItem( TXResStr( "TransformMatrixDlg", "Rotation" )	, append, (Sint32)ETransformType::Rotation		);
 	pTranformTypePopup->AddItem( TXResStr( "TransformMatrixDlg", "Translation" ), append, (Sint32)ETransformType::Translation	);
 	pTranformTypePopup->AddItem( TXResStr( "TransformMatrixDlg", "Scaling" )	, append, (Sint32)ETransformType::Scaling		);
+	pTranformTypePopup->AddItem( TXResStr( "TransformMatrixDlg", "EulerAngles" ), append, (Sint32)ETransformType::EulerAngles	);
 	pTranformTypePopup->AddItem( TXResStr( "TransformMatrixDlg", "ObjectMatrix" ),append, (Sint32)ETransformType::ObjectMat		);
 
-	fOulerIndexPopup	= 0;
-	VWPullDownMenuCtrl* pOulerPopup	= this->GetPullDownMenuCtrlByID( kOulerGroup );
-	pOulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Notation1" ) );
-	pOulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Notation2" ) );
-	pOulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Notation3" ) );
+	fEulerIndexPopup	= 0;
+	auto fillEulerPulldown = [ & ] ( TControlID controlID )
+	{
+		VWPullDownMenuCtrl* pEulerPopup	= this->GetPullDownMenuCtrlByID( controlID );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "XYZ" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "XZY" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "YXZ" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "YZX" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "ZXY" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "ZYX" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "X0YX1" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "X0ZX1" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Y0XY1" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Z0YZ1" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Y0ZY1" ) );
+		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Z0XZ1" ) );
+	};
+	fillEulerPulldown( kEulerEditGroup );
+	fillEulerPulldown( kEulerResultGroup );
 
 	VWPullDownMenuCtrl* pViewPopup	= this->GetPullDownMenuCtrlByID( kViewPopup );
 	for ( Sint32 currViewMarker = standardViewFront; currViewMarker <= standardViewBottomLeftRearIso; currViewMarker++ )
@@ -572,18 +704,8 @@ void CDlgTransformMatrix::OnSymetricCheck( Sint32 controlID, VWDialogEventArgs &
 
 void CDlgTransformMatrix::OnPickObjectButton( Sint32 controlID, VWDialogEventArgs & eventArgs )
 {
-	IExtendedPropsPtr	props( IID_ExtendedProps );
-	IExtension*			extention	= props->GetExtensionByName( "PickObjectTempTool" );
-	if ( extention )
-	{
-		VCOMSinkPtr< CExtToolPickObject_EventSink >	sink( extention, IID_ToolEventSink );
-		if ( sink )
-		{
-			sink->CallbackObjectIndex( this->GetCurrentDDX().fObjectIndex );
-		}
-	}
+	Context::SetIsToolActive( true );
 
-	gSDK->RunTempTool( CExtToolPickObject::_GetIID() );
 	this->SetDialogClose( false );
 }
 
@@ -661,29 +783,33 @@ void CDlgTransformMatrix::RebuildDDX()
 
 	if ( ETransformType( currentData.fTransformType ) != ETransformType::Result )
 	{
-		this->AddDDX_PulldownMenu(kTypePopup			, &currentData.fTransformType );
-		this->AddDDX_RadioButton( kXRotRadio			, &currentData.fXRotRadio );
-		this->AddDDX_RadioButton( kYRotRadio			, &currentData.fYRotRadio );
-		this->AddDDX_RadioButton( kZRotRadio			, &currentData.fZRotRadio );
-		this->AddDDX_RadioButton( kAsixRotRadio			, &currentData.fAsixRotRadio );
-		this->AddDDX_EditReal	( kXRotEdit				, &currentData.fAsixRotEdit.x, VWEditRealCtrl::kEditControlReal );
-		this->AddDDX_EditReal	( kYRotEdit				, &currentData.fAsixRotEdit.y, VWEditRealCtrl::kEditControlReal );
-		this->AddDDX_EditReal	( kZRotEdit				, &currentData.fAsixRotEdit.z, VWEditRealCtrl::kEditControlReal );
-		this->AddDDX_EditReal	( kRotAngleEdit			, &currentData.fRotAngleEdit, VWEditRealCtrl::kEditControlAngle );
-		this->AddDDX_EditReal	( kXTranslateEdit		, &currentData.fXTranslateEdit, VWEditRealCtrl::kEditControlDimension );
-		this->AddDDX_EditReal	( kYTranslateEdit		, &currentData.fYTranslateEdit, VWEditRealCtrl::kEditControlDimension );
-		this->AddDDX_EditReal	( kZTranslateEdit		, &currentData.fZTranslateEdit, VWEditRealCtrl::kEditControlDimension );
-		this->AddDDX_EditReal	( kXScaleEdit			, &currentData.fXScaleEdit, VWEditRealCtrl::kEditControlReal );
-		this->AddDDX_EditReal	( kYScaleEdit			, &currentData.fYScaleEdit, VWEditRealCtrl::kEditControlReal );
-		this->AddDDX_EditReal	( kZScaleEdit			, &currentData.fZScaleEdit, VWEditRealCtrl::kEditControlReal );
-		this->AddDDX_CheckButton( kSymetricScale		, &currentData.fSymetricScale );
-		this->AddDDX_CheckButton( kObjectRotationCheck	, &currentData.fObjectRotation );
-		this->AddDDX_CheckButton( kObjectTranslationCheck,&currentData.fObjectTrans );
+		this->AddDDX_PulldownMenu(kTypePopup			, &currentData.fTransformType	);
+		this->AddDDX_RadioButton( kXRotRadio			, &currentData.fXRotRadio		);
+		this->AddDDX_RadioButton( kYRotRadio			, &currentData.fYRotRadio		);
+		this->AddDDX_RadioButton( kZRotRadio			, &currentData.fZRotRadio		);
+		this->AddDDX_RadioButton( kAsixRotRadio			, &currentData.fAsixRotRadio	);
+		this->AddDDX_EditReal	( kXRotEdit				, &currentData.fAsixRotEdit.x	, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_EditReal	( kYRotEdit				, &currentData.fAsixRotEdit.y	, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_EditReal	( kZRotEdit				, &currentData.fAsixRotEdit.z	, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_EditReal	( kRotAngleEdit			, &currentData.fRotAngleEdit	, VWEditRealCtrl::kEditControlAngle );
+		this->AddDDX_EditReal	( kXTranslateEdit		, &currentData.fXTranslateEdit	, VWEditRealCtrl::kEditControlDimension );
+		this->AddDDX_EditReal	( kYTranslateEdit		, &currentData.fYTranslateEdit	, VWEditRealCtrl::kEditControlDimension );
+		this->AddDDX_EditReal	( kZTranslateEdit		, &currentData.fZTranslateEdit	, VWEditRealCtrl::kEditControlDimension );
+		this->AddDDX_EditReal	( kXScaleEdit			, &currentData.fXScaleEdit		, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_EditReal	( kYScaleEdit			, &currentData.fYScaleEdit		, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_EditReal	( kZScaleEdit			, &currentData.fZScaleEdit		, VWEditRealCtrl::kEditControlReal );
+		this->AddDDX_CheckButton( kSymetricScale		, &currentData.fSymetricScale	);
+		this->AddDDX_CheckButton( kObjectRotationCheck	, &currentData.fObjectRotation	);
+		this->AddDDX_CheckButton( kObjectTranslationCheck,&currentData.fObjectTrans		);
+		this->AddDDX_EditReal	( kXEulerEdit			, &currentData.fEulerAnglesEdit.x, VWEditRealCtrl::kEditControlAngle );
+		this->AddDDX_EditReal	( kYEulerEdit			, &currentData.fEulerAnglesEdit.y, VWEditRealCtrl::kEditControlAngle );
+		this->AddDDX_EditReal	( kZEulerEdit			, &currentData.fEulerAnglesEdit.z, VWEditRealCtrl::kEditControlAngle );
+		this->AddDDX_PulldownMenu(kEulerEditGroup		, &currentData.fEulerAnglesNotation );
 	}
 
-	this->AddDDX_PulldownMenu( kOulerGroup	, &fOulerIndexPopup );
-	this->AddDDX_CheckButton ( kInvertCheck	, &currentData.fInvert );
-	this->AddDDX_CheckButton ( kFormulaView	, &fFormulaView );
+	this->AddDDX_PulldownMenu( kEulerResultGroup, &fEulerIndexPopup );
+	this->AddDDX_CheckButton ( kInvertCheck		, &currentData.fInvert );
+	this->AddDDX_CheckButton ( kFormulaView		, &fFormulaView );
 
 	this->UpdatePanes();
 
@@ -832,9 +958,9 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetMatrixForDDX( const SDDXData & d
 				{
 					if ( useSlider && DoublesAreNotNearlyEqual( this->SliderPercent(), 1 ) )
 					{
-						VWPoint3D angles	= objectMat.GetOulerAngles();
+						VWPoint3D angles	= objectMat.GetEulerAngles();
 						angles	*= this->SliderPercent();
-						result.SetOulerAnglesRotation( angles );
+						result.SetEulerAnglesRotation( angles );
 					}
 					else
 					{
@@ -852,6 +978,16 @@ TransformMatrixAdvanced CDlgTransformMatrix::GetMatrixForDDX( const SDDXData & d
 					result.SetOffset( offset );
 				}
 			}
+			break;
+		}
+		case ETransformType::EulerAngles:
+		{
+			VWPoint3D	angles	= data.fEulerAnglesEdit;
+			if ( useSlider )
+			{
+				angles *= this->SliderPercent();
+			}
+			result.SetEulerAnglesRotation( angles, TransformMatrixAdvanced::EEulerAnglesOrder( data.fEulerAnglesNotation ) );
 			break;
 		}
 		default:
@@ -879,19 +1015,19 @@ void CDlgTransformMatrix::CalculateResultPane()
 									: TXResStr( "TransformMatrixDlg", "NotOrthogonal" ) );
 	this->GetStaticTextCtrlByID( kPropertiesStatic )->SetControlText( labelProperties );
 
-	VWPoint3D	angle	= resultMat.GetOulerAngles( TransformMatrixAdvanced::EOulerAnglesOrder( fOulerIndexPopup ) );
+	VWPoint3D	angle	= resultMat.GetEulerAngles( TransformMatrixAdvanced::EEulerAnglesOrder( fEulerIndexPopup ) );
 
-	TXString	labelX	= TXResStr( "TransformMatrixDlg", "kXOulerStatic" );
+	TXString	labelX	= TXResStr( "TransformMatrixDlg", "kXEulerResultStatic" );
 	labelX.Replace( "^1", VWStringConv( angle.x ).GetAngleDegString() );
-	this->GetStaticTextCtrlByID( kXOulerStatic )->SetControlText( labelX );
+	this->GetStaticTextCtrlByID( kXEulerResultStatic )->SetControlText( labelX );
 
-	TXString	labelY	= TXResStr( "TransformMatrixDlg", "kYOulerStatic" );
+	TXString	labelY	= TXResStr( "TransformMatrixDlg", "kYEulerResultStatic" );
 	labelY.Replace( "^1", VWStringConv( angle.y ).GetAngleDegString() );
-	this->GetStaticTextCtrlByID( kYOulerStatic )->SetControlText( labelY );
+	this->GetStaticTextCtrlByID( kYEulerResultStatic )->SetControlText( labelY );
 
-	TXString	labelZ	= TXResStr( "TransformMatrixDlg", "kZOulerStatic" );
+	TXString	labelZ	= TXResStr( "TransformMatrixDlg", "kZEulerResultStatic" );
 	labelZ.Replace( "^1", VWStringConv( angle.z ).GetAngleDegString() );
-	this->GetStaticTextCtrlByID( kZOulerStatic )->SetControlText( labelZ );
+	this->GetStaticTextCtrlByID( kZEulerResultStatic )->SetControlText( labelZ );
 }
 
 void CDlgTransformMatrix::UpdateMatrixView()

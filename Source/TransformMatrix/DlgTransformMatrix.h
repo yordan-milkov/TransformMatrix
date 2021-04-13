@@ -7,6 +7,28 @@ namespace CreateTransformMatrix
 	class CDlgTransformMatrix : public VWDialog
 	{
 	public:
+		class Context
+		{
+		public:
+			Context();
+			virtual		~Context();
+
+			static bool	IsToolActive();
+			static void	SetIsToolActive( bool isTempToolActive );
+
+			void		RunDialog();
+			void		RunDialog( InternalIndex pickedObjectIndex );
+
+		private:
+			static void	AddRef();
+			static void	Release();
+
+			static bool						sIsToolActive;
+			static Uint32					sRefCnt;
+			static CDlgTransformMatrix*		sDlgTransformMatrix;
+		};
+
+	protected:
 								CDlgTransformMatrix();
 		virtual					~CDlgTransformMatrix();
 
@@ -52,7 +74,8 @@ namespace CreateTransformMatrix
 			Translation	= 1,
 			Scaling		= 2,
 			ObjectMat	= 3,
-			Result		= 4
+			EulerAngles	= 4,
+			Result		= 5
 		};
 
 		struct SDDXData
@@ -76,6 +99,8 @@ namespace CreateTransformMatrix
 			InternalIndex	fObjectIndex;
 			bool			fObjectRotation;
 			bool			fObjectTrans;
+			size_t			fEulerAnglesNotation;
+			VWPoint3D		fEulerAnglesEdit;
 			bool			fInvert;
 
 			SDDXData()
@@ -98,13 +123,14 @@ namespace CreateTransformMatrix
 				fObjectIndex	= -1;
 				fObjectRotation	= true;
 				fObjectTrans	= true;
+				fEulerAnglesNotation = 0;
 				fInvert			= false;
 			}
 		};
 		using	TTransformDXXArr	= std::vector< SDDXData >;
 		TTransformDXXArr	fDDXControls;
 		SDDXData			fResultDDX;
-		size_t				fOulerIndexPopup;
+		size_t				fEulerIndexPopup;
 		bool				fFormulaView;
 		Sint32				fViewMarker;
 		Sint32				fRenderMarker;

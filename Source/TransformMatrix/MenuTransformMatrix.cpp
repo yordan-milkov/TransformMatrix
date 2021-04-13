@@ -46,24 +46,6 @@ CMenuTransformMatrix_EventSink::~CMenuTransformMatrix_EventSink()
 
 void CMenuTransformMatrix_EventSink::DoInterface()
 {
-	if ( gSDK->NumSelectedObjects() > 0 )
-	{
-		gSDK->SupportUndoAndRemove();
-		gSDK->SetUndoMethod( kUndoSwapObjects );
-		if ( fDialog.RunDialogLayout( "" ) == kDialogButton_Ok )
-		{
-			fDialog.TransformObject();
-			gSDK->RedrawRect( WorldRect() );
-			gSDK->EndUndoEvent();
-		}
-		else
-		{
-			gSDK->UndoAndRemove();
-		}
-	}
-	else
-	{
-		gSDK->AlertCritical( TXResStr( "MenuTransformMatrix", "SelectObjectAlert" ) );
-	}
+	fTransfromDialog.RunDialog();
 }
 

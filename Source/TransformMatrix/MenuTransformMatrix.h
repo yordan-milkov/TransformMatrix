@@ -17,7 +17,7 @@ namespace CreateTransformMatrix
 		virtual void	DoInterface();
 	
 	private:
-		CDlgTransformMatrix	fDialog;
+		CDlgTransformMatrix::Context	fTransfromDialog; //ensure we use the same instnace for the life of the menu.
 	};
 
 	class CExtMenuTransformMatrix : public VWExtensionMenu

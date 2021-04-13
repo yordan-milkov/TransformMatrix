@@ -12,16 +12,22 @@ namespace CreateTransformMatrix
 	public:
 		bool		IsAffine();
 
-		enum class	EOulerAnglesOrder
+		enum class	EEulerAnglesOrder
 		{
-			XYZ,
+			XYZ = 0,
 			XZY,
 			YXZ,
 			YZX,
 			ZXY,
-			ZYX
+			ZYX,
+			X0YX1,
+			X0ZX1,
+			Y0XY1,
+			Y0ZY1,
+			Z0XZ1,
+			Z0YZ1
 		};
-		VWPoint3D	GetOulerAngles( EOulerAnglesOrder order = EOulerAnglesOrder::XYZ );
-		void		SetOulerAnglesRotation( const VWPoint3D& angles, EOulerAnglesOrder notation = EOulerAnglesOrder::XYZ );
+		VWPoint3D	GetEulerAngles( EEulerAnglesOrder order = EEulerAnglesOrder::XYZ );
+		void		SetEulerAnglesRotation( const VWPoint3D& angles, EEulerAnglesOrder notation = EEulerAnglesOrder::XYZ );
 	};
 }

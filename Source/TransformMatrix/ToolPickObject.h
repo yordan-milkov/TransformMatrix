@@ -14,21 +14,18 @@ namespace CreateTransformMatrix
 		virtual		~CExtToolPickObject_EventSink();
 
 	public:
-		//virtual bool		DoSetUp(bool bRestore, const IToolModeBarInitProvider* pModeBarInitProvider);
+		virtual bool		DoSetUp(bool bRestore, const IToolModeBarInitProvider* pModeBarInitProvider);
 		virtual void		DoSetDown(bool bRestore, const IToolModeBarInitProvider* pModeBarInitProvider);
 		virtual void		PointAdded();
 		virtual void		MouseMove();
 		virtual void		HandleComplete();
 
-	public:
-		virtual void		CallbackObjectIndex( InternalIndex& index );
-
 	protected:
+		void				RunMenuCommand();
 		void				Clear();
 
-	protected:
-		InternalIndex*		fpResultIndex;
-		MCObjectHandle		fPickObject;
+	protected:	
+		MCObjectHandle					fPickObject;
 	};
 
 	// ------------------------------------------------------------------------------------------------------

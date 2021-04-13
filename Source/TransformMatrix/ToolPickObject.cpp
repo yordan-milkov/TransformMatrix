@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 
 #include "ToolPickObject.h"
+#include "DlgTransformMatrix.h"
 
 using namespace CreateTransformMatrix;
 
@@ -64,16 +65,17 @@ CExtToolPickObject_EventSink::~CExtToolPickObject_EventSink()
 {
 }
 
-//bool CExtToolPickObject_EventSink::DoSetUp(bool bRestore, const IToolModeBarInitProvider* pModeBarInitProvider)
-//{
-//	this->SetModeBarHelpText( TXResStr( "ExtToolHeliodon", "temp_tool_help" ) );
-//	return VWTool_EventSink::DoSetUp( bRestore, pModeBarInitProvider );
-//}
+bool CExtToolPickObject_EventSink::DoSetUp(bool bRestore, const IToolModeBarInitProvider* pModeBarInitProvider)
+{
+	this->SetModeBarHelpText( TXResStr( "ToolPickObject", "tool_message" ) );
+	return VWTool_EventSink::DoSetUp( bRestore, pModeBarInitProvider );
+}
 
 void CExtToolPickObject_EventSink::DoSetDown(bool bRestore, const IToolModeBarInitProvider* pModeBarInitProvider)
 {
 	if ( bRestore == false )
 	{
+		CDlgTransformMatrix::Context::SetIsToolActive( false );
 		this->Clear();
 	}
 
@@ -85,6 +87,10 @@ void CExtToolPickObject_EventSink::PointAdded()
 	if ( !fPickObject )
 	{
 		this->PopLastToolPt();
+	}
+	else
+	{
+		this->RunMenuCommand();
 	}
 }
 
@@ -102,6 +108,11 @@ void CExtToolPickObject_EventSink::MouseMove()
 }
 
 void CExtToolPickObject_EventSink::HandleComplete()
+{
+
+}
+
+void CExtToolPickObject_EventSink::RunMenuCommand()
 {
 	if ( fPickObject )
 	{
@@ -142,23 +153,20 @@ void CExtToolPickObject_EventSink::HandleComplete()
 			}
 			while ( name.IsEmpty() );
 		}
+		gSDK->EndUndoEvent();
+
 		if ( pickObj.GetObjectName().IsEmpty() == false )
 		{
-			( *fpResultIndex )	= pickObj.GetInternalIndex();
+			CDlgTransformMatrix::Context transfromDialog;
+			transfromDialog.RunDialog( pickObj.GetInternalIndex() );
 		}
-		gSDK->EndUndoEvent();
 	}
 	this->Clear();
-	gSDK->DoMenuName( "CreateTransformMatrix", 0 );
-}
-
-void CExtToolPickObject_EventSink::CallbackObjectIndex( InternalIndex & index )
-{
-	fpResultIndex	= &index;
+	//gSDK->DoMenuName( "CreateTransformMatrix", 0 );
 }
 
 void CExtToolPickObject_EventSink::Clear()
 {
 	fPickObject		= nullptr;
-	fpResultIndex	= nullptr;
+	gSDK->EmptyToolHighlightingList();
 }
