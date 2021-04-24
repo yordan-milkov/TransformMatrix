@@ -254,7 +254,7 @@ CDlgTransformMatrix::CDlgTransformMatrix()
 	, fFormulaView( false )
 	, fViewMarker( standardViewLeftIso )
 	, fRenderMarker( renderOpenGL )
-	, fDetailedPreview( false )
+	, fDetailedPreview( true )
 	, fOriginIndex( 0 )
 	, fSliderValue( 100 )
 {
@@ -369,7 +369,6 @@ void CDlgTransformMatrix::TransformObject( VWObject handle /*= nullptr*/, bool u
 			{
 				gSDK->AddBothSwapObject( obj );
 				this->TransformObjectReq( obj, transform, isOrthogonalTransform );
-				obj.ResetObject();
 			} );
 	}
 }
@@ -381,8 +380,6 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 	{
 		if ( isOrthogonal )
 		{
-			object.TransformObjectN( transform );
-			/*
 			if ( object.GetType() == kGroupNode )
 			{
 				for ( VWObject currObj : VWGroupObj( object ) )
@@ -390,15 +387,15 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 					this->TransformObjectReq( currObj, transform, isOrthogonal );
 				}
 			}
-			else if ( object.GetType() == kSolidNode )
-			{
-				object.ApplyObjectMatrix( transform );
-			}
+			//else if ( object.GetType() == kSolidNode )
+			//{
+			//	object.ApplyObjectMatrix( transform );
+			//}
 			else
 			{
-				object.TransformObject( transform, true, true );
+				//object.TransformObject( transform, true, true );
+				object.TransformObjectN( transform );
 			}
-			*/
 		}
 		else
 		{
@@ -420,6 +417,7 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 				}
 			}
 		}
+		object.ResetObject();
 	}
 }
 
@@ -1180,8 +1178,16 @@ void CDlgTransformMatrix::UpdatePreview()
 			hPreviewSymbol	= VWSymbolDefObj( "____SymbolDefPreview" );
 			gSDK->AddAfterSwapObject( hPreviewSymbol );
 		}
+
 		VWGroupObj	previewDef( hPreviewSymbol );
-		previewDef.DeleteAllInnerObjects();
+		previewDef.DeleteAllInnerObjects( true );
+
+		bool	isOrthogonal	= transform.fMatrix.IsOrthogonal();
+		VWObject	transformObj( isOrthogonal
+			? fPreviewGeometry.AddCacheObjectCopy( previewDef )
+			: fPreviewGeometry.AddMeshCopy( previewDef ) );
+		this->TransformObjectReq( transformObj, transform, isOrthogonal );
+
 		if ( fDetailedPreview )
 		{
 			fPreviewGeometry.AddCacheObjectCopy( previewDef );
@@ -1190,13 +1196,6 @@ void CDlgTransformMatrix::UpdatePreview()
 		{
 			fPreviewGeometry.AddSimplePreviewCopy( previewDef );
 		}
-
-		bool	isOrthogonal	= transform.fMatrix.IsOrthogonal();
-		VWObject	transformObj( isOrthogonal
-								? fPreviewGeometry.AddCacheObjectCopy( previewDef )
-								: fPreviewGeometry.AddMeshCopy( previewDef ) );
-		this->TransformObjectReq( transformObj, transform, isOrthogonal );
-		transformObj.ResetObject();
 
 		previewDef.ResetObject();
 		fLastTransform	= transform;
