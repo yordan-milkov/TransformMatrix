@@ -387,15 +387,21 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 					this->TransformObjectReq( currObj, transform, isOrthogonal );
 				}
 			}
-			//else if ( object.GetType() == kSolidNode )
-			//{
-			//	object.ApplyObjectMatrix( transform );
-			//}
+#if 1 //prior VW2021
+			else if ( object.GetType() == kSolidNode )
+			{
+				object.ApplyObjectMatrix( transform );
+			}
 			else
 			{
-				//object.TransformObject( transform, true, true );
+				object.TransformObject( transform, true, true );
+			}
+#else
+			else
+			{
 				object.TransformObjectN( transform );
 			}
+#endif
 		}
 		else
 		{
