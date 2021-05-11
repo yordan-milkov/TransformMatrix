@@ -387,7 +387,7 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 					this->TransformObjectReq( currObj, transform, isOrthogonal );
 				}
 			}
-#if 1 //prior VW2021
+#if ( SDK_VERSION < 2600 )
 			else if ( object.GetType() == kSolidNode )
 			{
 				object.ApplyObjectMatrix( transform );
@@ -429,7 +429,7 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 
 bool CDlgTransformMatrix::CreateDialogLayout()
 {
-	return this->CreateDialogLayoutFromVWR( "DebugModule/DialogLayout/TransformMatrixDlg.vs" );
+	return this->CreateDialogLayoutFromVWR( "TransformMatrix/DialogLayout/TransformMatrixDlg.vs" );
 }
 
 void CDlgTransformMatrix::OnInitializeContent()

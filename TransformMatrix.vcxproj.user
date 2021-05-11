@@ -8,4 +8,8 @@
     <LocalDebuggerCommand>C:\Program Files\Vectorworks 2020\Vectorworks2020.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugCustom|x64'">
+    <LocalDebuggerCommand>C:\Program Files\Vectorworks 2020\Vectorworks2020.exe</LocalDebuggerCommand>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>

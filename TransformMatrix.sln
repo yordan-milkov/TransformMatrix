@@ -6,12 +6,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TransformMatrix", "Transfor
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
+		DebugCustom|x64 = DebugCustom|x64
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{190589EF-AD32-4874-8C8B-E09DA782DB0F}.Debug|x64.ActiveCfg = Debug|x64
-		{190589EF-AD32-4874-8C8B-E09DA782DB0F}.Debug|x64.Build.0 = Debug|x64
+		{190589EF-AD32-4874-8C8B-E09DA782DB0F}.DebugCustom|x64.ActiveCfg = DebugCustom|x64
+		{190589EF-AD32-4874-8C8B-E09DA782DB0F}.DebugCustom|x64.Build.0 = DebugCustom|x64
 		{190589EF-AD32-4874-8C8B-E09DA782DB0F}.Release|x64.ActiveCfg = Release|x64
 		{190589EF-AD32-4874-8C8B-E09DA782DB0F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
