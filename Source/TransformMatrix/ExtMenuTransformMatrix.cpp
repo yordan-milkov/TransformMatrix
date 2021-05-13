@@ -1,15 +1,15 @@
 #include "StdAfx.h"
 
-#include "MenuTransformMatrix.h"
+#include "ExtMenuTransformMatrix.h"
 
 using namespace CreateTransformMatrix;
 
 static SMenuDef		gMenuItemTransformMatrix = {
 	/*Needs*/				1,				/* docIsActive */
 	/*NeedsNot*/			0,
-	/*Title*/				{"MenuTransformMatrix", "menu_title"}, 
-	/*Category*/			{"MenuTransformMatrix", "menu_category"},
-	/*HelpText*/			{"MenuTransformMatrix", "menu_helptext"},
+	/*Title*/				{"ExtMenuTransformMatrix", "menu_title"}, 
+	/*Category*/			{"ExtMenuTransformMatrix", "menu_category"},
+	/*HelpText*/			{"ExtMenuTransformMatrix", "menu_helptext"},
 	/*VersionCreated*/		24,
 	/*VersoinModified*/		0,
 	/*VersoinRetired*/		0,

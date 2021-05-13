@@ -2,7 +2,7 @@
 
 #include "DlgTransformMatrix.h"
 
-#include "ToolPickObject.h"
+#include "ExtToolPickObject.h"
 
 using namespace CreateTransformMatrix;
 // dialog control IDs
@@ -194,7 +194,7 @@ void CDlgTransformMatrix::Context::RunDialog()
 		}
 		else
 		{
-			gSDK->AlertCritical( TXResStr( "MenuTransformMatrix", "SelectObjectAlert" ) );
+			gSDK->AlertCritical( TXResStr( "ExtMenuTransformMatrix", "SelectObjectAlert" ) );
 		}
 	}
 }
@@ -259,7 +259,7 @@ CDlgTransformMatrix::CDlgTransformMatrix()
 	, fSliderValue( 100 )
 {
 	// Assign settings tag to this dialog so it would save it's position and size automatically
-	this->SetSavedSettingsTag( "TransformMatrix", "TransformMatrixDlg" );
+	this->SetSavedSettingsTag( "TransformMatrix", "DlgTransformMatrix" );
 }
 
 CDlgTransformMatrix::~CDlgTransformMatrix()
@@ -361,7 +361,7 @@ void CDlgTransformMatrix::TransformObject( VWObject handle /*= nullptr*/, bool u
 	{
 		if ( !isOrthogonalTransform )
 		{
-			gSDK->AlertInform( TXResStr( "TransformMatrixDlg", "NonOrtogonalAlert" ), "", false, fstrDialogCategory, "NonOrthogonalInform" );
+			gSDK->AlertInform( TXResStr( "DlgTransformMatrix", "NonOrtogonalAlert" ), "", false, fstrDialogCategory, "NonOrthogonalInform" );
 		}
 
 		gSDK->ForEachObjectN( allSelectedAndEditable,
@@ -429,7 +429,7 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 
 bool CDlgTransformMatrix::CreateDialogLayout()
 {
-	return this->CreateDialogLayoutFromVWR( "TransformMatrix/DialogLayout/TransformMatrixDlg.vs" );
+	return this->CreateDialogLayoutFromVWR( "DebugModule/DialogLayout/DlgTransformMatrix.vs" );
 }
 
 void CDlgTransformMatrix::OnInitializeContent()
@@ -442,11 +442,11 @@ void CDlgTransformMatrix::OnInitializeContent()
 	pListBrowser->EnableSingleLineSelection( true );
 	pListBrowser->EnableSorting( false );
 
-	VWListBrowserColumn	orderColumn	= pListBrowser->AddColumn( TXResStr( "TransformMatrixDlg", "#Col" ), 20 );
+	VWListBrowserColumn	orderColumn	= pListBrowser->AddColumn( TXResStr( "DlgTransformMatrix", "#Col" ), 20 );
 	orderColumn.SetColumnType		( EListBrowserControlType::kListBrowserControlNumber );
 	orderColumn.SetAsDragAndDropColumn();
 
-	VWListBrowserColumn useColumn	= pListBrowser->AddColumn( TXResStr( "TransformMatrixDlg", "Use" ), 40 );
+	VWListBrowserColumn useColumn	= pListBrowser->AddColumn( TXResStr( "DlgTransformMatrix", "Use" ), 40 );
 	useColumn.SetColumnType			( EListBrowserControlType::kListBrowserControlMultiState );
 	useColumn.SetItemDisplayType	( EListBrowserDisplayType::kListBrowserDisplayImageOnly );
 	fLBBlankImageID					= pListBrowser->AddImageStandard( EStandardImageID::kStandardImageID_Blank );
@@ -454,34 +454,34 @@ void CDlgTransformMatrix::OnInitializeContent()
 	useColumn.InsertColumnChoice	( kChecked	, fLBCheckMarkImageID );
 	useColumn.InsertColumnChoice	( kUnchecked, fLBBlankImageID );
 
-	VWListBrowserColumn	nameColumn	= pListBrowser->AddColumn( TXResStr( "TransformMatrixDlg", "NameCol" ), 80 );
+	VWListBrowserColumn	nameColumn	= pListBrowser->AddColumn( TXResStr( "DlgTransformMatrix", "NameCol" ), 80 );
 
 	this->RebuildListBrowser();
 
 	VWPullDownMenuCtrl*	pTranformTypePopup	= this->GetPullDownMenuCtrlByID( kTypePopup );
 	size_t	append	= size_t( -1 );
-	pTranformTypePopup->AddItem( TXResStr( "TransformMatrixDlg", "Rotation" )	, append, (Sint32)ETransformType::Rotation		);
-	pTranformTypePopup->AddItem( TXResStr( "TransformMatrixDlg", "Translation" ), append, (Sint32)ETransformType::Translation	);
-	pTranformTypePopup->AddItem( TXResStr( "TransformMatrixDlg", "Scaling" )	, append, (Sint32)ETransformType::Scaling		);
-	pTranformTypePopup->AddItem( TXResStr( "TransformMatrixDlg", "EulerAngles" ), append, (Sint32)ETransformType::EulerAngles	);
-	pTranformTypePopup->AddItem( TXResStr( "TransformMatrixDlg", "ObjectMatrix" ),append, (Sint32)ETransformType::ObjectMat		);
+	pTranformTypePopup->AddItem( TXResStr( "DlgTransformMatrix", "Rotation" )	, append, (Sint32)ETransformType::Rotation		);
+	pTranformTypePopup->AddItem( TXResStr( "DlgTransformMatrix", "Translation" ), append, (Sint32)ETransformType::Translation	);
+	pTranformTypePopup->AddItem( TXResStr( "DlgTransformMatrix", "Scaling" )	, append, (Sint32)ETransformType::Scaling		);
+	pTranformTypePopup->AddItem( TXResStr( "DlgTransformMatrix", "EulerAngles" ), append, (Sint32)ETransformType::EulerAngles	);
+	pTranformTypePopup->AddItem( TXResStr( "DlgTransformMatrix", "ObjectMatrix" ),append, (Sint32)ETransformType::ObjectMat		);
 
 	fEulerIndexPopup	= 0;
 	auto fillEulerPulldown = [ & ] ( TControlID controlID )
 	{
 		VWPullDownMenuCtrl* pEulerPopup	= this->GetPullDownMenuCtrlByID( controlID );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "XYZ" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "XZY" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "YXZ" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "YZX" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "ZXY" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "ZYX" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "X0YX1" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "X0ZX1" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Y0XY1" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Z0YZ1" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Y0ZY1" ) );
-		pEulerPopup->AddItem( TXResStr( "TransformMatrixDlg", "Z0XZ1" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "XYZ" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "XZY" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "YXZ" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "YZX" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "ZXY" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "ZYX" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "X0YX1" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "X0ZX1" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "Y0XY1" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "Z0YZ1" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "Y0ZY1" ) );
+		pEulerPopup->AddItem( TXResStr( "DlgTransformMatrix", "Z0XZ1" ) );
 	};
 	fillEulerPulldown( kEulerEditGroup );
 	fillEulerPulldown( kEulerResultGroup );
@@ -489,18 +489,18 @@ void CDlgTransformMatrix::OnInitializeContent()
 	VWPullDownMenuCtrl* pViewPopup	= this->GetPullDownMenuCtrlByID( kViewPopup );
 	for ( Sint32 currViewMarker = standardViewFront; currViewMarker <= standardViewBottomLeftRearIso; currViewMarker++ )
 	{
-		pViewPopup->AddItem( TXResStr( "TransformMatrixDlg", TXString( "View" ) << currViewMarker ), append, currViewMarker );
+		pViewPopup->AddItem( TXResStr( "DlgTransformMatrix", TXString( "View" ) << currViewMarker ), append, currViewMarker );
 	}
 
 	VWPullDownMenuCtrl* pRenderPopup	= this->GetPullDownMenuCtrlByID( kRenderPopup );
-	pRenderPopup->AddItem( TXResStr( "TransformMatrixDlg", "RenderOGL" )	, append, renderOpenGL );
-	pRenderPopup->AddItem( TXResStr( "TransformMatrixDlg", "RenderWire" )	, append, renderWireFrame );
-	pRenderPopup->AddItem( TXResStr( "TransformMatrixDlg", "RenderHidden" )	, append, renderFinalHiddenLine );
+	pRenderPopup->AddItem( TXResStr( "DlgTransformMatrix", "RenderOGL" )	, append, renderOpenGL );
+	pRenderPopup->AddItem( TXResStr( "DlgTransformMatrix", "RenderWire" )	, append, renderWireFrame );
+	pRenderPopup->AddItem( TXResStr( "DlgTransformMatrix", "RenderHidden" )	, append, renderFinalHiddenLine );
 
 	VWPullDownMenuCtrl* pOriginPopup	= this->GetPullDownMenuCtrlByID( kOriginPopup );
 	for ( short currOrigin = 0; currOrigin <= 9; currOrigin++ )
 	{
-		pOriginPopup->AddItem( TXResStr( "TransformMatrixDlg", TXString( "Bound" ) << currOrigin ) );
+		pOriginPopup->AddItem( TXResStr( "DlgTransformMatrix", TXString( "Bound" ) << currOrigin ) );
 	}
 
 	fRenderChange	= true;
@@ -763,7 +763,7 @@ void CDlgTransformMatrix::OnRenameButton( Sint32 controlID, VWDialogEventArgs & 
 void CDlgTransformMatrix::OnRemoveButton(Sint32 controlID, VWDialogEventArgs& eventArgs)
 {
 	if ( EDialogButton::kDialogButton_Ok == VWDialog::AlertQuestion
-			( TXResStr( "TransformMatrixDlg", "DeleteAlert" ), TXResStr( "TransformMatrixDlg", "DeleteInform" ) ) )
+			( TXResStr( "DlgTransformMatrix", "DeleteAlert" ), TXResStr( "DlgTransformMatrix", "DeleteInform" ) ) )
 	{
 		fDDXControls.erase( fDDXControls.begin() + fSelectedIndex );
 		fSelectedIndex	= (size_t) -1;
@@ -840,7 +840,7 @@ void CDlgTransformMatrix::RebuildListBrowser()
 	pListBrowser->AddRow( "-", kRowSep );
 
 	size_t	resultRowIndex	= pListBrowser->AddRow( " ", kRowResult );
-	pListBrowser->GetItem( resultRowIndex, kColName ).SetItemText( TXResStr( "TransformMatrixDlg", "ResultRow" ) );
+	pListBrowser->GetItem( resultRowIndex, kColName ).SetItemText( TXResStr( "DlgTransformMatrix", "ResultRow" ) );
 
 	pListBrowser->SelectRow( ( ( fSelectedIndex == (size_t) -1 ) ? resultRowIndex : fSelectedIndex ), true );
 }
@@ -852,7 +852,7 @@ void CDlgTransformMatrix::UpdatePanes()
 	{
 		resultSwap->SetActivePaneIndex( 1 );
 
-		TXString	groupLabel	= TXResStr( "TransformMatrixDlg", "ResultRow" );
+		TXString	groupLabel	= TXResStr( "DlgTransformMatrix", "ResultRow" );
 		this->GetGroupBoxCtrlByID( kTransformGrp )->SetControlText( groupLabel );
 
 		this->CalculateResultPane();
@@ -861,18 +861,18 @@ void CDlgTransformMatrix::UpdatePanes()
 	{
 		resultSwap->SetActivePaneIndex( 0 );
 
-		TXString	groupLabel	= TXResStr( "TransformMatrixDlg", "kTransformGrp" );
+		TXString	groupLabel	= TXResStr( "DlgTransformMatrix", "kTransformGrp" );
 		this->GetGroupBoxCtrlByID( kTransformGrp )->SetControlText( groupLabel );
 
 		SDDXData&		currentData			= this->GetCurrentDDX();
-		TXString		transformNameLabel	= TXResStr( "TransformMatrixDlg", "kNameStatic" );
+		TXString		transformNameLabel	= TXResStr( "DlgTransformMatrix", "kNameStatic" );
 		transformNameLabel.Replace( "^1", currentData.fName );
 		this->GetStaticTextCtrlByID( kNameStatic )->SetControlText( transformNameLabel );
 
 		ETransformType	transformType		= ETransformType( currentData.fTransformType );
 		if ( transformType == ETransformType::ObjectMat )
 		{
-			TXString		objNameLabel	= TXResStr( "TransformMatrixDlg", "kObjectNameStatic" );
+			TXString		objNameLabel	= TXResStr( "DlgTransformMatrix", "kObjectNameStatic" );
 			MCObjectHandle	object;
 			TXString		replaceText		=	(	currentData.fObjectIndex > 0
 												&&	( object = VWObject::InternalIndex2Handle( currentData.fObjectIndex ) ) != nullptr )
@@ -880,7 +880,7 @@ void CDlgTransformMatrix::UpdatePanes()
 											:	"";
 			if ( replaceText.IsEmpty() )
 			{
-				replaceText	= TXResStr( "TransformMatrixDlg", "NoPickObject" );
+				replaceText	= TXResStr( "DlgTransformMatrix", "NoPickObject" );
 			}
 			objNameLabel.Replace( "^1", replaceText );
 			this->GetStaticTextCtrlByID( kObjectNameStatic )->SetControlText( objNameLabel );
@@ -1010,26 +1010,26 @@ void CDlgTransformMatrix::CalculateResultPane()
 {
 	TransformMatrixAdvanced	resultMat	= this->GetTransform( false );
 
-	TXString	labelProperties	= TXResStr( "TransformMatrixDlg", "kPropertiesStatic" );
+	TXString	labelProperties	= TXResStr( "DlgTransformMatrix", "kPropertiesStatic" );
 	labelProperties.Replace( "^1"	, resultMat.IsAffine()
-									? TXResStr( "TransformMatrixDlg", "Affine" )
-									: TXResStr( "TransformMatrixDlg", "NotAffine" ) );
+									? TXResStr( "DlgTransformMatrix", "Affine" )
+									: TXResStr( "DlgTransformMatrix", "NotAffine" ) );
 	labelProperties.Replace( "^2"	, resultMat.fMatrix.IsOrthogonal()
-									? TXResStr( "TransformMatrixDlg", "Orthogonal" )
-									: TXResStr( "TransformMatrixDlg", "NotOrthogonal" ) );
+									? TXResStr( "DlgTransformMatrix", "Orthogonal" )
+									: TXResStr( "DlgTransformMatrix", "NotOrthogonal" ) );
 	this->GetStaticTextCtrlByID( kPropertiesStatic )->SetControlText( labelProperties );
 
 	VWPoint3D	angle	= resultMat.GetEulerAngles( TransformMatrixAdvanced::EEulerAnglesOrder( fEulerIndexPopup ) );
 
-	TXString	labelX	= TXResStr( "TransformMatrixDlg", "kXEulerResultStatic" );
+	TXString	labelX	= TXResStr( "DlgTransformMatrix", "kXEulerResultStatic" );
 	labelX.Replace( "^1", VWStringConv( angle.x ).GetAngleDegString() );
 	this->GetStaticTextCtrlByID( kXEulerResultStatic )->SetControlText( labelX );
 
-	TXString	labelY	= TXResStr( "TransformMatrixDlg", "kYEulerResultStatic" );
+	TXString	labelY	= TXResStr( "DlgTransformMatrix", "kYEulerResultStatic" );
 	labelY.Replace( "^1", VWStringConv( angle.y ).GetAngleDegString() );
 	this->GetStaticTextCtrlByID( kYEulerResultStatic )->SetControlText( labelY );
 
-	TXString	labelZ	= TXResStr( "TransformMatrixDlg", "kZEulerResultStatic" );
+	TXString	labelZ	= TXResStr( "DlgTransformMatrix", "kZEulerResultStatic" );
 	labelZ.Replace( "^1", VWStringConv( angle.z ).GetAngleDegString() );
 	this->GetStaticTextCtrlByID( kZEulerResultStatic )->SetControlText( labelZ );
 }
@@ -1071,31 +1071,31 @@ void CDlgTransformMatrix::UpdateMatrixView()
 		{
 			case ETransformType::Rotation:
 			{
-				TXString	sin		( TXResStr( "TransformMatrixDlg", "formulaSin" ) );
-				TXString	cos		( TXResStr( "TransformMatrixDlg", "formulaCos" ) );
+				TXString	sin		( TXResStr( "DlgTransformMatrix", "formulaSin" ) );
+				TXString	cos		( TXResStr( "DlgTransformMatrix", "formulaCos" ) );
 
 				if ( currentDDX.fAsixRotRadio )
 				{
 					auto formatAsixRot = [ & ] ( const TXString& label ) -> TXString
 					{
 						TXString result	= label;
-						result.Replace( "^1", TXResStr( "TransformMatrixDlg", "kXRotRadio" ) );
-						result.Replace( "^2", TXResStr( "TransformMatrixDlg", "kYRotRadio" ) );
-						result.Replace( "^3", TXResStr( "TransformMatrixDlg", "kZRotRadio" ) );
+						result.Replace( "^1", TXResStr( "DlgTransformMatrix", "kXRotRadio" ) );
+						result.Replace( "^2", TXResStr( "DlgTransformMatrix", "kYRotRadio" ) );
+						result.Replace( "^3", TXResStr( "DlgTransformMatrix", "kZRotRadio" ) );
 						result.Replace( "^4", sin );
 						result.Replace( "^5", cos );
 						return result;
 					};
 
-					SetEditItemText( kMatrixUX, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotUX" ) ) );
-					SetEditItemText( kMatrixUY, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotUY" ) ) );
-					SetEditItemText( kMatrixUZ, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotUZ" ) ) );
-					SetEditItemText( kMatrixVX, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotVX" ) ) );
-					SetEditItemText( kMatrixVY, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotVY" ) ) );
-					SetEditItemText( kMatrixVZ, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotVZ" ) ) );
-					SetEditItemText( kMatrixWX, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotWX" ) ) );
-					SetEditItemText( kMatrixWY, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotWY" ) ) );
-					SetEditItemText( kMatrixWZ, formatAsixRot( TXResStr( "TransformMatrixDlg", "formulaRotWZ" ) ) );
+					SetEditItemText( kMatrixUX, formatAsixRot( TXResStr( "DlgTransformMatrix", "formulaRotUX" ) ) );
+					SetEditItemText( kMatrixUY, formatAsixRot( TXResStr( "DlgTransformMatrix", "formulaRotUY" ) ) );
+					SetEditItemText( kMatrixUZ, formatAsixRot( TXResStr( "DlgTransformMatrix", "formulaRotUZ" ) ) );
+					SetEditItemText( kMatrixVX, formatAsixRot( TXResStr( "DlgTransformMatrix", "formulaRotVX" ) ) );
+					SetEditItemText( kMatrixVY, formatAsixRot( TXResStr( "DlgTransformMatrix", "formulaRotVY" ) ) );
+					SetEditItemText( kMatrixVZ, formatAsixRot( TXResStr( "DlgTransformMatrix", "formulaRotVZ" ) ) );
+					SetEditItemText( kMatrixWX, formatAsixRot( TXResStr( "DlgTransformMatrix", "formulaRotWX" ) ) );
+					SetEditItemText( kMatrixWY, formatAsixRot( TXResStr( "DlgTransformMatrix", "formulaRotWY" ) ) );
+					SetEditItemText( kMatrixWZ, formatAsixRot( TXResStr( "DlgTransformMatrix", "formulaRotWZ" ) ) );
 				}
 				else
 				{
@@ -1127,16 +1127,16 @@ void CDlgTransformMatrix::UpdateMatrixView()
 			}
 			case ETransformType::Translation:
 			{
-				SetEditItemText( kMatrixOX, TXResStr( "TransformMatrixDlg", "kXRotRadio" ) );
-				SetEditItemText( kMatrixOY, TXResStr( "TransformMatrixDlg", "kYRotRadio" ) );
-				SetEditItemText( kMatrixOZ, TXResStr( "TransformMatrixDlg", "kZRotRadio" ) );
+				SetEditItemText( kMatrixOX, TXResStr( "DlgTransformMatrix", "kXRotRadio" ) );
+				SetEditItemText( kMatrixOY, TXResStr( "DlgTransformMatrix", "kYRotRadio" ) );
+				SetEditItemText( kMatrixOZ, TXResStr( "DlgTransformMatrix", "kZRotRadio" ) );
 				break;
 			}
 			case ETransformType::Scaling:
 			{
-				SetEditItemText( kMatrixUX, TXResStr( "TransformMatrixDlg", "kXRotRadio" ) + "*1" );
-				SetEditItemText( kMatrixVY, TXResStr( "TransformMatrixDlg", "kYRotRadio" ) + "*1" );
-				SetEditItemText( kMatrixWZ, TXResStr( "TransformMatrixDlg", "kZRotRadio" ) + "*1" );
+				SetEditItemText( kMatrixUX, TXResStr( "DlgTransformMatrix", "kXRotRadio" ) + "*1" );
+				SetEditItemText( kMatrixVY, TXResStr( "DlgTransformMatrix", "kYRotRadio" ) + "*1" );
+				SetEditItemText( kMatrixWZ, TXResStr( "DlgTransformMatrix", "kZRotRadio" ) + "*1" );
 				break;
 			}
 			default:
@@ -1229,11 +1229,11 @@ TXString CDlgTransformMatrix::GetNewName( const TXString & oldName )
 {
 	bool	doAdd	= oldName.IsEmpty();
 	CStandardEditTextBoxDlg dlgSetName
-		( doAdd ? TXResStr( "TransformMatrixDlg", "AddTitle" ) : TXResStr( "TransformMatrixDlg", "RenameTitle" )
-		, doAdd ? TXResStr( "TransformMatrixDlg", "AddLabel" ) : TXResStr( "TransformMatrixDlg", "RenameLabel" )
+		( doAdd ? TXResStr( "DlgTransformMatrix", "AddTitle" ) : TXResStr( "DlgTransformMatrix", "RenameTitle" )
+		, doAdd ? TXResStr( "DlgTransformMatrix", "AddLabel" ) : TXResStr( "DlgTransformMatrix", "RenameLabel" )
 		, oldName
-		, TXResStr( "TransformMatrixDlg", "ok_button" )
-		, TXResStr( "TransformMatrixDlg", "cancel_button" )
+		, TXResStr( "DlgTransformMatrix", "ok_button" )
+		, TXResStr( "DlgTransformMatrix", "cancel_button" )
 	);
 
 	TXString	newName;
@@ -1242,7 +1242,7 @@ TXString CDlgTransformMatrix::GetNewName( const TXString & oldName )
 		if ( dlgSetName.RunDialogLayout( "" ) == EDialogButton::kDialogButton_Ok )
 		{
 			newName	= dlgSetName.GetValue();
-			if ( !newName.IsEmpty() && newName != TXResStr( "TransformMatrixDlg", "ResultRow" ) )
+			if ( !newName.IsEmpty() && newName != TXResStr( "DlgTransformMatrix", "ResultRow" ) )
 			{
 				for ( auto&& currentData : fDDXControls )
 				{

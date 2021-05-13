@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 
-#include "ToolPickObject.h"
+#include "ExtToolPickObject.h"
 #include "DlgTransformMatrix.h"
 
 using namespace CreateTransformMatrix;
@@ -17,14 +17,14 @@ static SToolDef		gToolDef = {
 	/*NeedPerspective*/				ToolDef::doesntNeedPerspective,
 	/*ShowScreenHints*/				ToolDef::showScreenHints,
 	/*NeedsPlanarContext*/			ToolDef::needsPlanarContext,
-	/*Message*/						{"ToolPickObject", "tool_message"},
+	/*Message*/						{"ExtToolPickObject", "tool_message"},
 	/*WaitMoveDistance*/			0,
 	/*ConstraintFlags*/				0,
 	/*BarDisplay*/					kToolBarDisplay_XYClLaZo,
 	/*MinimumCompatibleVersion*/	900,
-	/*Title*/						{"ToolPickObject",	"tool_title"	},
-	/*Category*/					{"ToolPickObject",	"tool_category"	},
-	/*HelpText*/					{"ToolPickObject",	"tool_help"		},
+	/*Title*/						{"ExtToolPickObject",	"tool_title"	},
+	/*Category*/					{"ExtToolPickObject",	"tool_category"	},
+	/*HelpText*/					{"ExtToolPickObject",	"tool_help"		},
 	/*VersionCreated*/				25,
 	/*VersoinModified*/				0,
 	/*VersoinRetired*/				0,
@@ -67,7 +67,7 @@ CExtToolPickObject_EventSink::~CExtToolPickObject_EventSink()
 
 bool CExtToolPickObject_EventSink::DoSetUp(bool bRestore, const IToolModeBarInitProvider* pModeBarInitProvider)
 {
-	this->SetModeBarHelpText( TXResStr( "ToolPickObject", "tool_message" ) );
+	this->SetModeBarHelpText( TXResStr( "ExtToolPickObject", "tool_message" ) );
 	return VWTool_EventSink::DoSetUp( bRestore, pModeBarInitProvider );
 }
 
@@ -123,11 +123,11 @@ void CExtToolPickObject_EventSink::RunMenuCommand()
 		if ( name.IsEmpty() )
 		{
 			CStandardEditTextBoxDlg dlgSetName
-				( TXResStr( "ToolPickObject", "NameTitle" )
-				, TXResStr( "ToolPickObject", "NameLabel" )
+				( TXResStr( "ExtToolPickObject", "NameTitle" )
+				, TXResStr( "ExtToolPickObject", "NameLabel" )
 				, name
-				, TXResStr( "ToolPickObject", "ok_Name" )
-				, TXResStr( "ToolPickObject", "cancel_Name" )
+				, TXResStr( "ExtToolPickObject", "ok_Name" )
+				, TXResStr( "ExtToolPickObject", "cancel_Name" )
 			);
 
 			do
