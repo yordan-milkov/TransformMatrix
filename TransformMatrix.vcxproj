@@ -244,23 +244,23 @@ set VWR_7ZCMD=$(ProjectDir)..\..\..\SDKLib\ToolsWin\BuildVWR\7z
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugCustom|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\TransformMatrix\DlgTransformMatrix.cpp" />
-    <ClCompile Include="Source\TransformMatrix\MenuTransformMatrix.cpp" />
-    <ClCompile Include="Source\TransformMatrix\ToolPickObject.cpp" />
+    <ClCompile Include="Source\TransformMatrix\ExtMenuTransformMatrix.cpp" />
+    <ClCompile Include="Source\TransformMatrix\ExtToolPickObject.cpp" />
     <ClCompile Include="Source\TransformMatrix\TransformMatrixAdvanced.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Prefix\CommonPrefix.h" />
     <ClInclude Include="Source\Prefix\StdAfx.h" />
     <ClInclude Include="Source\TransformMatrix\DlgTransformMatrix.h" />
-    <ClInclude Include="Source\TransformMatrix\MenuTransformMatrix.h" />
-    <ClInclude Include="Source\TransformMatrix\ToolPickObject.h" />
+    <ClInclude Include="Source\TransformMatrix\ExtMenuTransformMatrix.h" />
+    <ClInclude Include="Source\TransformMatrix\ExtToolPickObject.h" />
     <ClInclude Include="Source\TransformMatrix\TransformMatrixAdvanced.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="TransformMatrix.vwr\DialogLayout\TransformMatrixDlg.vs" />
-    <None Include="TransformMatrix.vwr\Strings\MenuTransformMatrix.vwstrings" />
-    <None Include="TransformMatrix.vwr\Strings\ToolPickObject.vwstrings" />
-    <None Include="TransformMatrix.vwr\Strings\TransformMatrixDlg.vwstrings" />
+    <None Include="TransformMatrix.vwr\DialogLayout\DlgTransformMatrix.vs" />
+    <None Include="TransformMatrix.vwr\Strings\DlgTransformMatrix.vwstrings" />
+    <None Include="TransformMatrix.vwr\Strings\ExtMenuTransformMatrix.vwstrings" />
+    <None Include="TransformMatrix.vwr\Strings\ExtToolPickObject.vwstrings" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

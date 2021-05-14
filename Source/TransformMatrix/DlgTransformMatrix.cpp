@@ -429,7 +429,7 @@ void CDlgTransformMatrix::TransformObjectReq( VWObject& object, const TransformM
 
 bool CDlgTransformMatrix::CreateDialogLayout()
 {
-	return this->CreateDialogLayoutFromVWR( "DebugModule/DialogLayout/DlgTransformMatrix.vs" );
+	return this->CreateDialogLayoutFromVWR( "TransformMatrix/DialogLayout/DlgTransformMatrix.vs" );
 }
 
 void CDlgTransformMatrix::OnInitializeContent()

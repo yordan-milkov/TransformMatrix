@@ -32,13 +32,13 @@
     <ClCompile Include="Source\TransformMatrix\DlgTransformMatrix.cpp">
       <Filter>Source Files\TransformMatrix</Filter>
     </ClCompile>
-    <ClCompile Include="Source\TransformMatrix\MenuTransformMatrix.cpp">
-      <Filter>Source Files\TransformMatrix</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\TransformMatrix\ToolPickObject.cpp">
-      <Filter>Source Files\TransformMatrix</Filter>
-    </ClCompile>
     <ClCompile Include="Source\TransformMatrix\TransformMatrixAdvanced.cpp">
+      <Filter>Source Files\TransformMatrix</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TransformMatrix\ExtMenuTransformMatrix.cpp">
+      <Filter>Source Files\TransformMatrix</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TransformMatrix\ExtToolPickObject.cpp">
       <Filter>Source Files\TransformMatrix</Filter>
     </ClCompile>
   </ItemGroup>
@@ -52,28 +52,28 @@
     <ClInclude Include="Source\TransformMatrix\DlgTransformMatrix.h">
       <Filter>Source Files\TransformMatrix</Filter>
     </ClInclude>
-    <ClInclude Include="Source\TransformMatrix\MenuTransformMatrix.h">
-      <Filter>Source Files\TransformMatrix</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\TransformMatrix\ToolPickObject.h">
-      <Filter>Source Files\TransformMatrix</Filter>
-    </ClInclude>
     <ClInclude Include="Source\TransformMatrix\TransformMatrixAdvanced.h">
+      <Filter>Source Files\TransformMatrix</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TransformMatrix\ExtMenuTransformMatrix.h">
+      <Filter>Source Files\TransformMatrix</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TransformMatrix\ExtToolPickObject.h">
       <Filter>Source Files\TransformMatrix</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TransformMatrix.vwr\Strings\MenuTransformMatrix.vwstrings">
-      <Filter>TransformMatrix.vwr\Strings</Filter>
-    </None>
-    <None Include="TransformMatrix.vwr\Strings\ToolPickObject.vwstrings">
-      <Filter>TransformMatrix.vwr\Strings</Filter>
-    </None>
-    <None Include="TransformMatrix.vwr\Strings\TransformMatrixDlg.vwstrings">
-      <Filter>TransformMatrix.vwr\Strings</Filter>
-    </None>
-    <None Include="TransformMatrix.vwr\DialogLayout\TransformMatrixDlg.vs">
+    <None Include="TransformMatrix.vwr\DialogLayout\DlgTransformMatrix.vs">
       <Filter>TransformMatrix.vwr\DialogLayout</Filter>
+    </None>
+    <None Include="TransformMatrix.vwr\Strings\DlgTransformMatrix.vwstrings">
+      <Filter>TransformMatrix.vwr\Strings</Filter>
+    </None>
+    <None Include="TransformMatrix.vwr\Strings\ExtMenuTransformMatrix.vwstrings">
+      <Filter>TransformMatrix.vwr\Strings</Filter>
+    </None>
+    <None Include="TransformMatrix.vwr\Strings\ExtToolPickObject.vwstrings">
+      <Filter>TransformMatrix.vwr\Strings</Filter>
     </None>
   </ItemGroup>
 </Project>

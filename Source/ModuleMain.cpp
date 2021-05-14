@@ -9,8 +9,8 @@
 
 #include "StdAfx.h"
 
-#include "TransformMatrix\MenuTransformMatrix.h"
-#include "TransformMatrix\ToolPickObject.h"
+#include "TransformMatrix\ExtMenuTransformMatrix.h"
+#include "TransformMatrix\ExtToolPickObject.h"
 
 const char * DefaultPluginVWRIdentifier()
 {

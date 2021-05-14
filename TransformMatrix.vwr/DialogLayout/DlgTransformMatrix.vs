@@ -124,7 +124,7 @@ VAR
 
 FUNCTION GetStr(ndx :STRING) :STRING;
 BEGIN
-    GetVWRString(GetStr, 'DebugModule/Strings/DlgTransformMatrix.vwstrings', ndx);
+    GetVWRString(GetStr, 'TransformMatrix/Strings/DlgTransformMatrix.vwstrings', ndx);
 END;
 
 BEGIN
@@ -481,7 +481,7 @@ RUN( DlgTransformMatrix );
     <TablesAddToDlgRes>True</TablesAddToDlgRes>
     <ExportResourcesInR>False</ExportResourcesInR>
     <AltStringStartID>0</AltStringStartID>
-    <ResourceRoot>DebugModule</ResourceRoot>
+    <ResourceRoot>TransformMatrix</ResourceRoot>
     <ResTables>
       <Table ID="0" Name="TransformChoices">
         <Values>
